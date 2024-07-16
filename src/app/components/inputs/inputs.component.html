@@ -1,0 +1,45 @@
+<div class="p-3 bg-slate-100">
+  <form [formGroup]="form">
+    <div class="font-medium font-xl mb-3">API</div>
+    <div class="grid grid-cols-6 gap-3 items-center justify-center">
+      <mat-form-field>
+        <mat-label>Workspace</mat-label>
+        <input matInput formControlName="workspace" placeholder="universalrepo" />
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Repository</mat-label>
+        <input matInput formControlName="repository" placeholder="Atlas" />
+      </mat-form-field>
+
+      <mat-form-field class="col-span-3">
+        <mat-label>Token</mat-label>
+        <input matInput formControlName="token" placeholder="put API token here" />
+      </mat-form-field>
+
+      <div class="flex justify-center items-center">
+        <button mat-raised-button color="primary" (click)="onFetchClick()">
+          Fetch
+        </button>
+      </div>
+    </div>
+
+    <div class="font-medium font-xl mb-3">Thresholds</div>
+    <div class="grid grid-cols-6">
+      <mat-form-field>
+        <mat-label>Overdue Threshold</mat-label>
+        <input matInput type="number" formControlName="overdueThreshold" placeholder="2" />
+      </mat-form-field>
+    </div>
+  </form>
+</div>
+
+@if (appStore.isLoading()) {
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+}
+
+@if (error()) {
+  <div class="p-3 bg-red-100">
+    {{ errorToString() }}
+  </div>
+}
