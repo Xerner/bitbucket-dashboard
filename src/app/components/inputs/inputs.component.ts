@@ -9,6 +9,8 @@ import { BitbucketAPI } from '../../services/bitbucket-api.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DashboardStore as DashboardStore } from '../../stores/dashboard.store.service';
 import { PullRequest } from '../../models/PullRequest';
+import { combineLatest, concatMap, forkJoin, merge, Observable } from 'rxjs';
+import { BitbucketRepository } from '../../models/BitbucketRepository';
 
 @Component({
   selector: 'app-inputs',
@@ -25,7 +27,6 @@ import { PullRequest } from '../../models/PullRequest';
 export class InputsComponent implements OnInit {
   form = new FormGroup({
     workspace: new FormControl<string | null>(this.appStore.workspace(), [Validators.required]),
-    repository: new FormControl<string | null>(this.appStore.repository(), [Validators.required]),
     token: new FormControl<string | null>(this.appStore.token(), [Validators.required]),
     overdueThreshold: new FormControl<number | null>(this.appStore.overdueThreshold(), [Validators.required])
   });
@@ -40,7 +41,6 @@ export class InputsComponent implements OnInit {
 
   ngOnInit() {
     this.form.controls.workspace.valueChanges.subscribe((value) => this.appStore.workspace.set(value));
-    this.form.controls.repository.valueChanges.subscribe((value) => this.appStore.repository.set(value));
     this.form.controls.token.valueChanges.subscribe((value) => this.appStore.token.set(value));
     this.form.controls.overdueThreshold.valueChanges.subscribe((value) => this.appStore.overdueThreshold.set(value));
   }
@@ -50,20 +50,34 @@ export class InputsComponent implements OnInit {
       return;
     }
     this.appStore.isLoading.set(true);
-    var allPullRequests: PullRequest[] = []
-    this.bitbucketAPI.getPullRequests().subscribe({
-      next: (pullRequests) => {
-        allPullRequests = allPullRequests.concat(pullRequests);
+    var allRepositories: BitbucketRepository[] = [];
+    var allPullRequests: PullRequest[] = [];
+    this.bitbucketAPI.getRepositories().subscribe({
+      next: (repositories) => {
+        allRepositories = allRepositories.concat(repositories);
       },
       error: (error) => {
         this.error.set(error)
       },
       complete: () => {
-        this.error.set(null)
-        this.appStore.isLoading.set(false);
-        this.dashboardStore.pullRequests.set(allPullRequests);
+        var pullRequestObservables = allRepositories.map(repository => this.bitbucketAPI.getPullRequests(repository.uuid));
+        combineLatest(pullRequestObservables).subscribe({
+          next: (pullRequests) => {
+            allPullRequests = allPullRequests.concat(pullRequests.flat());
+          },
+          error: (error) => {
+            this.error.set(error)
+          },
+          complete: () => {
+            this.error.set(null)
+            this.appStore.isLoading.set(false);
+            console.log(allPullRequests);
+            this.dashboardStore.pullRequests.set(allPullRequests);
+          }
+        })
       }
     });
+
   }
 
   errorToString(): string {

@@ -2,6 +2,7 @@ import { computed, Injectable, signal } from '@angular/core';
 import { ChartData, ChartOptions, ChartTypeRegistry } from 'chart.js';
 import { DashboardService } from '../services/dashboard.service';
 import { PullRequest } from '../models/PullRequest';
+import { MatTableDataSource } from '@angular/material/table';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +10,12 @@ import { PullRequest } from '../models/PullRequest';
 export class DashboardStore {
   readonly MIN_LABEL_COUNT = 7;
 
-  displayedColumns = ['title', 'age', 'lastUpdated'];
+  displayedColumns = [
+    'repository',
+    'title',
+    'age',
+    'lastUpdated'
+  ];
   pullRequests = signal<PullRequest[] | null>(null);
   pullRequestOptions = signal<ChartOptions<keyof ChartTypeRegistry>>({
     scales: {
@@ -40,7 +46,7 @@ export class DashboardStore {
 
   constructor(
     private dashboardService: DashboardService
-  ) {}
+  ) { }
 
   getPullRequestsAgesChartData(): ChartData<keyof ChartTypeRegistry, number[], string> {
     var data = this.pullRequests();

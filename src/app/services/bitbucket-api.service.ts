@@ -1,9 +1,10 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { AppStore } from "../stores/app.store.service";
-import { Observable, subscribeOn, Subscriber } from "rxjs";
+import { map, Observable, subscribeOn, Subscriber } from "rxjs";
 import { BitbucketApiResponse } from "../models/BitbucketApiResponse";
 import { PullRequest } from "../models/PullRequest";
+import { BitbucketRepository } from "../models/BitbucketRepository";
 
 
 @Injectable({
@@ -44,10 +45,18 @@ export class BitbucketAPI {
     });
   }
 
-  getPullRequests() {
+  getPullRequests(repository: string) {
     return this.getAllPages(
       this.http.get<BitbucketApiResponse<PullRequest>>(
-        `${this.REPOSITORIES_URL}/${this.appStore.workspace()}/${this.appStore.repository()}/pullrequests`,
+        `${this.REPOSITORIES_URL}/${this.appStore.workspace()}/${repository}/pullrequests`,
+        { headers: this.getHeaders(this.appStore.token()) })
+    )
+  }
+
+  getRepositories() {
+    return this.getAllPages(
+      this.http.get<BitbucketApiResponse<BitbucketRepository>>(
+        `${this.REPOSITORIES_URL}/${this.appStore.workspace()}`,
         { headers: this.getHeaders(this.appStore.token()) })
     )
   }
