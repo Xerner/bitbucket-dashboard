@@ -1,6 +1,9 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { AppStore } from "../stores/app.store.service";
+import { Observable, subscribeOn, Subscriber } from "rxjs";
+import { BitbucketApiResponse } from "../models/BitbucketApiResponse";
+import { PullRequest } from "../models/PullRequest";
 
 
 @Injectable({
@@ -13,13 +16,40 @@ export class BitbucketAPI {
   constructor(
     private http: HttpClient,
     private appStore: AppStore
-  ) {}
+  ) { }
+
+  getAllPages<T>(entryObservable: Observable<BitbucketApiResponse<T>>) {
+    return new Observable<T[]>(subscriber => {
+      entryObservable.subscribe(results => {
+        subscriber.next(results.values);
+        if (results.next != null && results.next != undefined) {
+          this.getAllPages(this.http.get<BitbucketApiResponse<T>>(
+            results.next,
+            { headers: this.getHeaders(this.appStore.token()) }))
+            .subscribe({
+              next: (values) => {
+                subscriber.next(values)
+              },
+              error: (error) => {
+                subscriber.error(error)
+              },
+              complete: () => {
+                subscriber.complete()
+              }
+            });
+        } else {
+          subscriber.complete();
+        }
+      })
+    });
+  }
 
   getPullRequests() {
-    return this.http.get<{ values: any[] }>(
-      `${this.REPOSITORIES_URL}/${this.appStore.workspace()}/${this.appStore.repository()}/pullrequests`,
-      { headers: this.getHeaders(this.appStore.token()) }
-    );
+    return this.getAllPages(
+      this.http.get<BitbucketApiResponse<PullRequest>>(
+        `${this.REPOSITORIES_URL}/${this.appStore.workspace()}/${this.appStore.repository()}/pullrequests`,
+        { headers: this.getHeaders(this.appStore.token()) })
+    )
   }
 
   getHeaders(token: string | null): HttpHeaders | { [header: string]: string | string[]; } {
@@ -27,5 +57,9 @@ export class BitbucketAPI {
       "Authorization": `Bearer ${token}`,
       "Accept": "application/json"
     }
+  }
+
+  getTotalPages<T>(response: BitbucketApiResponse<T>) {
+    return response.page * (response.page)
   }
 }

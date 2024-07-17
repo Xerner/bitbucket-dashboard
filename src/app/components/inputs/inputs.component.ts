@@ -8,6 +8,7 @@ import { AppStore } from '../../stores/app.store.service';
 import { BitbucketAPI } from '../../services/bitbucket-api.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DashboardStore as DashboardStore } from '../../stores/dashboard.store.service';
+import { PullRequest } from '../../models/PullRequest';
 
 @Component({
   selector: 'app-inputs',
@@ -19,7 +20,7 @@ import { DashboardStore as DashboardStore } from '../../stores/dashboard.store.s
     MatButtonModule,
     MatProgressBarModule
   ],
-  templateUrl: "./inputs.component.html",
+  templateUrl: "inputs.component.html",
 })
 export class InputsComponent implements OnInit {
   form = new FormGroup({
@@ -45,18 +46,22 @@ export class InputsComponent implements OnInit {
   }
 
   onFetchClick() {
-    if (!this.form.valid) {
+    if (!this.form.valid || this.appStore.isLoading()) {
       return;
     }
     this.appStore.isLoading.set(true);
+    var allPullRequests: PullRequest[] = []
     this.bitbucketAPI.getPullRequests().subscribe({
-      next: (results) => {
-        this.error.set(null)
-        this.dashboardStore.pullRequests.set(results["values"]);
-        this.appStore.isLoading.set(false);
+      next: (pullRequests) => {
+        allPullRequests = allPullRequests.concat(pullRequests);
       },
       error: (error) => {
         this.error.set(error)
+      },
+      complete: () => {
+        this.error.set(null)
+        this.appStore.isLoading.set(false);
+        this.dashboardStore.pullRequests.set(allPullRequests);
       }
     });
   }

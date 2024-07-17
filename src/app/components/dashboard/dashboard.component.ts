@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { Component, computed } from '@angular/core';
 import { BaseChartDirective } from 'ng2-charts';
 import { DashboardStore } from '../../stores/dashboard.store.service';
-import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table'
-import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
+import { MatTableModule } from '@angular/material/table'
+import { MatSortModule, Sort } from '@angular/material/sort';
 import { deepClone } from '../../library/deep-clone';
 import { AppStore } from '../../stores/app.store.service';
+import { DashboardService } from '../../services/dashboard.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -16,18 +17,21 @@ import { AppStore } from '../../stores/app.store.service';
     MatTableModule,
     MatSortModule
   ],
-  templateUrl: "./dashboard.component.html",
+  templateUrl: "dashboard.component.html",
 })
 export class DashboardComponent {
-  @ViewChild(MatTable, { static: true }) table!: MatTable<any>;
+  pullRequestsCount = computed(() => {
+    var pullRequests = this.dashboardStore.pullRequests()
+    if (pullRequests == null) {
+      return 0;
+    }
+    return pullRequests.length;
+  })
   constructor(
+    protected dashboardService: DashboardService,
     protected dashboardStore: DashboardStore,
     protected appStore: AppStore
   ) {}
-
-  ngOnInit () {
-    this.table.dataSource
-  }
 
   sortPullRequests(sort: Sort) {
     var pullRequests = this.dashboardStore.pullRequests()
@@ -35,11 +39,8 @@ export class DashboardComponent {
       return;
     }
     pullRequests.sort((pr1, pr2) => {
-      return this.dashboardStore.pullRequestSorts[sort.active](pr1, pr2, sort.direction)
+      return this.dashboardService.pullRequestSorts[sort.active](pr1, pr2, sort.direction)
     });
     this.dashboardStore.pullRequests.set(deepClone(pullRequests));
-
   }
-
-
 }
