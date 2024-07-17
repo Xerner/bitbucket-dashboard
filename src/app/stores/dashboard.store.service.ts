@@ -44,7 +44,7 @@ export class DashboardStore {
 
   getPullRequestsAgesChartData(): ChartData<keyof ChartTypeRegistry, number[], string> {
     var data = this.pullRequests();
-    var chartDataset = this.dashboardService.getChartDataTemplate<number>("Days");
+    var chartDataset = this.dashboardService.getChartDataTemplate<number>("Count");
     if (data == null) {
       return chartDataset;
     }
@@ -76,7 +76,7 @@ export class DashboardStore {
 
   getPullRequestsLastUpdatedChartData(): ChartData<keyof ChartTypeRegistry, number[], string> {
     var data = this.pullRequests();
-    var chartDataset = this.dashboardService.getChartDataTemplate<number>("Days");
+    var chartDataset = this.dashboardService.getChartDataTemplate<number>("Count");
     if (data == null) {
       return chartDataset;
     }
