@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { AppStore } from "../stores/app.store.service";
-import { map, Observable, subscribeOn, Subscriber } from "rxjs";
+import { Observable } from "rxjs";
 import { BitbucketApiResponse } from "../models/BitbucketApiResponse";
 import { PullRequest } from "../models/PullRequest";
 import { BitbucketRepository } from "../models/BitbucketRepository";
@@ -26,7 +26,7 @@ export class BitbucketAPI {
         if (results.next != null && results.next != undefined) {
           this.getAllPages(this.http.get<BitbucketApiResponse<T>>(
             results.next,
-            { headers: this.getHeaders(this.appStore.token()) }))
+            { headers: this.getHeaders(this.appStore.queryParams['access_token']()) }))
             .subscribe({
               next: (values) => {
                 subscriber.next(values)
@@ -48,16 +48,16 @@ export class BitbucketAPI {
   getPullRequests(repository: string) {
     return this.getAllPages(
       this.http.get<BitbucketApiResponse<PullRequest>>(
-        `${this.REPOSITORIES_URL}/${this.appStore.workspace()}/${repository}/pullrequests`,
-        { headers: this.getHeaders(this.appStore.token()) })
+        `${this.REPOSITORIES_URL}/${this.appStore.queryParams['workspace']()}/${repository}/pullrequests`,
+        { headers: this.getHeaders(this.appStore.queryParams['access_token']()) })
     )
   }
 
   getRepositories() {
     return this.getAllPages(
       this.http.get<BitbucketApiResponse<BitbucketRepository>>(
-        `${this.REPOSITORIES_URL}/${this.appStore.workspace()}`,
-        { headers: this.getHeaders(this.appStore.token()) })
+        `${this.REPOSITORIES_URL}/${this.appStore.queryParams['workspace']()}`,
+        { headers: this.getHeaders(this.appStore.queryParams['access_token']()) })
     )
   }
 

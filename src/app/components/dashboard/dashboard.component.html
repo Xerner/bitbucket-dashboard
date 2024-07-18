@@ -1,5 +1,6 @@
-
-<div class="grid grid-cols-2">
-  <app-pull-request-table class="border-r"></app-pull-request-table>
-  <app-charts class="grid grid-cols-2 gap-3 bg-slate-100"></app-charts>
-</div>
+<app-pull-request-table
+  class="overflow-y-scroll xl:border-r xl:border-t-0 lg:border-r-0 lg:border-t border-slate-500"
+></app-pull-request-table>
+<app-charts
+  class="flex flex-col bg-slate-100 p-3 overflow-y-scroll xl:order-last lg:order-first"
+></app-charts>

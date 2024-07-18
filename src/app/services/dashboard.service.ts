@@ -51,7 +51,7 @@ export class DashboardService {
   }
 
   isAgeOverThreshold(age: number) {
-    var overdueThreshold = this.appStore.overdueThreshold();
+    var overdueThreshold = this.appStore.queryParams['overdueThreshold']();
     if (overdueThreshold == null) {
       return false;
     }

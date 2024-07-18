@@ -1,5 +1,36 @@
-<div class="p-3">
+<div class="flex gap-6 h-1/2 row-span-1">
+  <div class="w-1/2">
+    <canvas
+      baseChart
+      [data]="pullRequestsStore.pullRequestsLastUpdated()"
+      [options]="
+        pullRequestsStore.getOptions(
+          'Days Since Pull Requests Were Last Updated',
+          'Days Since Last Updated',
+          'Number Of Pull Requests'
+        )
+      "
+      [type]="'bar'"
+    ></canvas>
+  </div>
+  <div class="w-1/2">
+    <canvas
+      baseChart
+      [data]="pullRequestsStore.pullRequestsAges()"
+      [options]="
+        pullRequestsStore.getOptions(
+          'Days Since Pull Requests Were Opened',
+          'Days Since Created',
+          'Number Of Pull Requests'
+        )
+      "
+      [type]="'bar'"
+    ></canvas>
+  </div>
+</div>
+
   <canvas
+  class="h-1/2 w-full"
     baseChart
     [data]="pullRequestsStore.pullRequestsLastUpdated()"
     [options]="
@@ -11,19 +42,3 @@
     "
     [type]="'bar'"
   ></canvas>
-</div>
-
-<div class="p-3">
-  <canvas
-    baseChart
-    [data]="pullRequestsStore.pullRequestsAges()"
-    [options]="
-      pullRequestsStore.getOptions(
-        'Days Since Pull Requests Were Opened',
-        'Days Since Created',
-        'Number Of Pull Requests'
-      )
-    "
-    [type]="'bar'"
-  ></canvas>
-</div>

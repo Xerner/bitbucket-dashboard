@@ -1,53 +1,49 @@
-<div class="p-3 bg-slate-300">
-  <form [formGroup]="form">
-    <div class="grid grid-cols-2 gap-3">
-      <div class="font-medium font-xl mb-3">Thresholds</div>
-      <div class="font-medium font-xl mb-3">API</div>
-    </div>
-    <div class="grid grid-cols-2 gap-3">
-      <div class="grid grid-cols-2 gap-3 items-center justify-center">
-        <mat-form-field>
-          <mat-label>Overdue Threshold</mat-label>
-          <input
-            matInput
-            type="number"
-            formControlName="overdueThreshold"
-            placeholder="2"
-          />
-        </mat-form-field>
+<form
+  [formGroup]="form"
+  [ngClass]="{ 'border-b-4 border-blue-600': !appStore.isLoading() }"
+  class="grid grid-cols-2 bg-gradient-to-r from-blue-50 to-blue-300"
+>
+  <div class="grid grid-cols-2 gap-3 items-center justify-center p-3">
+    <div class="font-medium font-xl col-span-2">Thresholds</div>
+    <mat-form-field>
+      <mat-label>Overdue Threshold</mat-label>
+      <input matInput type="number" formControlName="overdueThreshold" />
+    </mat-form-field>
 
-        <div></div>
-      </div>
+    <mat-form-field>
+      <mat-label>Time Window (Days)</mat-label>
+      <input matInput type="number" formControlName="daysWindow" />
+    </mat-form-field>
+  </div>
 
-      <div class="grid grid-cols-3 gap-3 items-center justify-center">
-        <mat-form-field>
-          <mat-label>Workspace</mat-label>
-          <input
-            matInput
-            formControlName="workspace"
-            placeholder="universalrepo"
-          />
-        </mat-form-field>
+  <div class="grid grid-cols-3 gap-3 items-center justify-center p-3">
+    <div class="font-medium font-xl col-span-3">API</div>
+    <mat-form-field>
+      <mat-label>Workspace</mat-label>
+      <input matInput formControlName="workspace" />
+    </mat-form-field>
 
-        <mat-form-field>
-          <mat-label>Token</mat-label>
-          <input
-            matInput
-            formControlName="token"
-            placeholder="put API token here"
-          />
-        </mat-form-field>
+    <mat-form-field>
+      <mat-label>Token</mat-label>
+      <input matInput formControlName="access_token" />
+    </mat-form-field>
 
-        <button mat-raised-button color="primary" (click)="onFetchClick()">
-          Fetch
-        </button>
-      </div>
-    </div>
-  </form>
-</div>
+    <button
+      mat-raised-button
+      class="!bg-gradient-to-r from-blue-600 to-purple-600 !text-slate-100"
+      color="primary"
+      (click)="onFetchClick()"
+    >
+      Fetch
+    </button>
+  </div>
+</form>
 
 @if (appStore.isLoading()) {
-<mat-progress-bar mode="indeterminate"></mat-progress-bar>
+<mat-progress-bar
+  mode="query"
+  class="!bg-gradient-to-r from-blue-600 to-purple-600"
+></mat-progress-bar>
 } @if (error()) {
 <div class="p-3 bg-red-100">
   {{ errorToString() }}

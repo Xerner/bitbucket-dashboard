@@ -9,9 +9,9 @@ import { BitbucketAPI } from '../../services/bitbucket-api.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { PullRequestsStore as PullRequestsStore } from '../../stores/pull-requests.store.service';
 import { PullRequest } from '../../models/PullRequest';
-import { combineLatest, concatMap, forkJoin, merge, Observable } from 'rxjs';
+import { combineLatest } from 'rxjs';
 import { BitbucketRepository } from '../../models/BitbucketRepository';
-import { ActivatedRoute, ParamMap, Params } from '@angular/router';
+import { ActivatedRoute, ParamMap, Params, Router } from '@angular/router';
 
 @Component({
   selector: 'app-inputs',
@@ -27,9 +27,10 @@ import { ActivatedRoute, ParamMap, Params } from '@angular/router';
 })
 export class InputsComponent implements OnInit {
   form = new FormGroup({
-    workspace: new FormControl<string | null>(this.appStore.workspace(), [Validators.required]),
-    token: new FormControl<string | null>(this.appStore.token(), [Validators.required]),
-    overdueThreshold: new FormControl<number | null>(this.appStore.overdueThreshold())
+    workspace: new FormControl<string | null>(this.appStore.queryParams['workspace'](), [Validators.required]),
+    access_token: new FormControl<string | null>(this.appStore.queryParams['access_token'](), [Validators.required]),
+    overdueThreshold: new FormControl<number | null>(this.appStore.queryParams['overdueThreshold']()),
+    daysWindow: new FormControl<number | null>(this.appStore.queryParams['daysWindow']())
   });
 
   error = signal<HttpErrorResponse | null>(null);
@@ -38,14 +39,47 @@ export class InputsComponent implements OnInit {
     protected appStore: AppStore,
     private pullRequestsStore: PullRequestsStore,
     private bitbucketAPI: BitbucketAPI,
+    private router: Router,
     private route: ActivatedRoute
   ) { }
 
   ngOnInit() {
     this.route.queryParamMap.subscribe(this.parseQueryParams.bind(this))
-    this.form.controls.workspace.valueChanges.subscribe((value) => this.appStore.workspace.set(value));
-    this.form.controls.token.valueChanges.subscribe((value) => this.appStore.token.set(value));
-    this.form.controls.overdueThreshold.valueChanges.subscribe((value) => this.appStore.overdueThreshold.set(value));
+    this.subscribeToValueChanges(this.form.controls.workspace);
+    this.subscribeToValueChanges(this.form.controls.access_token);
+    this.subscribeToValueChanges(this.form.controls.overdueThreshold);
+    this.subscribeToValueChanges(this.form.controls.daysWindow);
+  }
+
+  subscribeToValueChanges(control: FormControl) {
+    var name = this.getControlName(control);
+    this.route.queryParamMap.subscribe(params => {
+      var queryParam = params.get(name);
+      this.appStore.updateStoredQueryParam(name, queryParam);
+      this.updateControlValue(control, queryParam);
+    })
+    control.valueChanges.subscribe(value => {
+      this.appStore.updateStoredQueryParam(name, value);
+      this.appStore.updateQueryParam(name, value);
+    });
+  }
+
+  updateControlValue(control: FormControl, value: any) {
+    if (value != control.value) {
+      control.setValue(value)
+    }
+  }
+
+  getControlName(control: FormControl): string {
+    var parent = control.parent
+    if (parent == null) {
+      throw new Error("This control has no parent! There's no way to know what name it has")
+    }
+    var name = Object.entries(parent.controls).find(entry => entry[1] == control)?.[0]
+    if (name == undefined) {
+      throw new Error("Could not find the name of the control")
+    }
+    return name;
   }
 
   onFetchClick() {
@@ -83,7 +117,7 @@ export class InputsComponent implements OnInit {
 
   parseQueryParams(params: ParamMap) {
     var workspace = params.get('workspace');
-    if (workspace != this.appStore.workspace()) {
+    if (workspace != this.appStore.queryParams['workspace']()) {
       this.form.controls.workspace.setValue(workspace);
     }
     var overdueThreshold = params.get('overdueThreshold');
