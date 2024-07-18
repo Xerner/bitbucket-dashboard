@@ -11,6 +11,7 @@ import { PullRequestsStore as PullRequestsStore } from '../../stores/pull-reques
 import { PullRequest } from '../../models/PullRequest';
 import { combineLatest, concatMap, forkJoin, merge, Observable } from 'rxjs';
 import { BitbucketRepository } from '../../models/BitbucketRepository';
+import { ActivatedRoute, ParamMap, Params } from '@angular/router';
 
 @Component({
   selector: 'app-inputs',
@@ -36,10 +37,12 @@ export class InputsComponent implements OnInit {
   constructor(
     protected appStore: AppStore,
     private pullRequestsStore: PullRequestsStore,
-    private bitbucketAPI: BitbucketAPI
-  ) {}
+    private bitbucketAPI: BitbucketAPI,
+    private route: ActivatedRoute
+  ) { }
 
   ngOnInit() {
+    this.route.queryParamMap.subscribe(this.parseQueryParams.bind(this))
     this.form.controls.workspace.valueChanges.subscribe((value) => this.appStore.workspace.set(value));
     this.form.controls.token.valueChanges.subscribe((value) => this.appStore.token.set(value));
     this.form.controls.overdueThreshold.valueChanges.subscribe((value) => this.appStore.overdueThreshold.set(value));
@@ -76,7 +79,21 @@ export class InputsComponent implements OnInit {
         })
       }
     });
+  }
 
+  parseQueryParams(params: ParamMap) {
+    var workspace = params.get('workspace');
+    if (workspace != this.appStore.workspace()) {
+      this.form.controls.workspace.setValue(workspace);
+    }
+    var overdueThreshold = params.get('overdueThreshold');
+    var overdueThresholdInt: number | null;
+    if (typeof overdueThreshold === 'string') {
+      overdueThresholdInt = parseInt(overdueThreshold)
+    } else {
+      overdueThresholdInt = null
+    }
+    this.form.controls.overdueThreshold.setValue(overdueThresholdInt)
   }
 
   errorToString(): string {
