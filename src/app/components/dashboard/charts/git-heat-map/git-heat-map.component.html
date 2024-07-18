@@ -1,0 +1,5 @@
+<div class="grid grid-cols-* grid-rows-7">
+  @for (commitCount of commitCounts(); track $index) {
+  <div class="w-4 h-4 p-1" [style]="getCellStyle(commitCount)"></div>
+  }
+</div>

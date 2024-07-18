@@ -1,4 +1,3 @@
-import { DateTime } from "luxon";
 import { BitbucketRepository } from "./BitbucketRepository";
 
 export interface PullRequest {
@@ -9,4 +8,11 @@ export interface PullRequest {
   destination: {
     repository: BitbucketRepository
   }
+}
+
+export enum PullRequestState {
+  OPEN,
+  MERGED,
+  DECLINED,
+  SUPERSEDED
 }

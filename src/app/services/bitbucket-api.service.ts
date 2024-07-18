@@ -61,6 +61,14 @@ export class BitbucketAPI {
     )
   }
 
+  getCommits(repository: string) {
+    return this.getAllPages(
+      this.http.get<BitbucketApiResponse<BitbucketRepository>>(
+        `${this.REPOSITORIES_URL}/${this.appStore.queryParams['workspace']()}/${repository}/commits`,
+        { headers: this.getHeaders(this.appStore.queryParams['access_token']()) })
+    )
+  }
+
   getHeaders(token: string | null): HttpHeaders | { [header: string]: string | string[]; } {
     return {
       "Authorization": `Bearer ${token}`,
