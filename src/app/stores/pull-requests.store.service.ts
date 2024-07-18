@@ -2,53 +2,61 @@ import { computed, Injectable, signal } from '@angular/core';
 import { ChartData, ChartOptions, ChartTypeRegistry } from 'chart.js';
 import { DashboardService } from '../services/dashboard.service';
 import { PullRequest } from '../models/PullRequest';
-import { MatTableDataSource } from '@angular/material/table';
+import { PullRequestsService } from '../services/pull-requests.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class DashboardStore {
+export class PullRequestsStore {
   readonly MIN_LABEL_COUNT = 7;
 
-  displayedColumns = [
-    'repository',
-    'title',
-    'age',
-    'lastUpdated'
-  ];
   pullRequests = signal<PullRequest[] | null>(null);
-  pullRequestOptions = signal<ChartOptions<keyof ChartTypeRegistry>>({
-    scales: {
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: "Number Of Pull Requests"
-        }
-      },
-      x: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: "Days Since Created"
-        }
-      }
-    },
-    plugins: {
-      title: {
-        display: true,
-        text: 'Days Since Pull Requests Were Opened'
-      }
+  tableFilter = signal<string>("");
+  filteredPullRequests = computed<Fuzzysort.KeysResults<PullRequest> | null>(() => {
+    var pullRequests = this.pullRequests();
+    if (pullRequests == null) {
+      return null;
     }
-  })
-  pullRequestsAges = computed<ChartData<keyof ChartTypeRegistry, number[], string>>(this.getPullRequestsAgesChartData.bind(this));
-  pullRequestsLastUpdated = computed<ChartData<keyof ChartTypeRegistry, number[], string>>(this.getPullRequestsLastUpdatedChartData.bind(this));
+    var filter = this.tableFilter();
+    var filteredPullRequests = this.pullRequestService.fuzzySort(filter, pullRequests);
+    return filteredPullRequests;
+  });
+  pullRequestsAges = computed<ChartData<keyof ChartTypeRegistry, number[], string>>(this.getAgesChartData.bind(this));
+  pullRequestsLastUpdated = computed<ChartData<keyof ChartTypeRegistry, number[], string>>(this.getLastUpdatedChartData.bind(this));
 
   constructor(
-    private dashboardService: DashboardService
+    private dashboardService: DashboardService,
+    private pullRequestService: PullRequestsService
   ) { }
 
-  getPullRequestsAgesChartData(): ChartData<keyof ChartTypeRegistry, number[], string> {
+  getOptions(chartTitle: string, xAxisTitle: string, yAxisTitle: string): ChartOptions<keyof ChartTypeRegistry> {
+    return {
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: yAxisTitle
+          }
+        },
+        x: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: xAxisTitle
+          }
+        }
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: chartTitle
+        }
+      }
+    }
+  }
+
+  getAgesChartData(): ChartData<keyof ChartTypeRegistry, number[], string> {
     var data = this.pullRequests();
     var chartDataset = this.dashboardService.getChartDataTemplate<number>("Count");
     if (data == null) {
@@ -80,7 +88,7 @@ export class DashboardStore {
     return chartDataset;
   }
 
-  getPullRequestsLastUpdatedChartData(): ChartData<keyof ChartTypeRegistry, number[], string> {
+  getLastUpdatedChartData(): ChartData<keyof ChartTypeRegistry, number[], string> {
     var data = this.pullRequests();
     var chartDataset = this.dashboardService.getChartDataTemplate<number>("Count");
     if (data == null) {

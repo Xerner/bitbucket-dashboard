@@ -9,13 +9,6 @@ import { PullRequest } from '../models/PullRequest';
   providedIn: 'root'
 })
 export class DashboardService {
-  pullRequestSorts: { [key: string]: (pr1: PullRequest, pr2: PullRequest, sortDirection: SortDirection) => number } = {
-    "repository": (pr1: PullRequest, pr2: PullRequest, sortDirection): number => this.genericSort(pr1['repository'], pr2['repository'], sortDirection),
-    "title": (pr1: PullRequest, pr2: PullRequest, sortDirection): number => this.genericSort(pr1['title'], pr2['title'], sortDirection),
-    "age": (pr1: PullRequest, pr2: PullRequest, sortDirection): number => this.genericSort(this.getAge(pr1['created_on']), this.getAge(pr2['created_on']), sortDirection),
-    "lastUpdated": (pr1: PullRequest, pr2: PullRequest, sortDirection): number => this.genericSort(this.getAge(pr1['updated_on']), this.getAge(pr2['updated_on']), sortDirection),
-  }
-
   constructor(
     private appStore: AppStore,
   ) { }
@@ -55,10 +48,6 @@ export class DashboardService {
       return 'rgba(255, 99, 132, 0.2)';
     }
     return 'rgba(75, 192, 192, 0.2)';
-  }
-
-  isPullRequestLastUpdatedOverThreshold(pullRequest: PullRequest) {
-    return this.isAgeOverThreshold(this.getAge(pullRequest.updated_on));
   }
 
   isAgeOverThreshold(age: number) {

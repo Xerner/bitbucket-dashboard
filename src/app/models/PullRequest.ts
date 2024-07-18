@@ -9,6 +9,4 @@ export interface PullRequest {
   destination: {
     repository: BitbucketRepository
   }
-  // Added on through code
-  repository: string;
 }

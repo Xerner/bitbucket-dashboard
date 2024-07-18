@@ -1,0 +1,29 @@
+<div class="p-3">
+  <canvas
+    baseChart
+    [data]="pullRequestsStore.pullRequestsLastUpdated()"
+    [options]="
+      pullRequestsStore.getOptions(
+        'Days Since Pull Requests Were Last Updated',
+        'Days Since Last Updated',
+        'Number Of Pull Requests'
+      )
+    "
+    [type]="'bar'"
+  ></canvas>
+</div>
+
+<div class="p-3">
+  <canvas
+    baseChart
+    [data]="pullRequestsStore.pullRequestsAges()"
+    [options]="
+      pullRequestsStore.getOptions(
+        'Days Since Pull Requests Were Opened',
+        'Days Since Created',
+        'Number Of Pull Requests'
+      )
+    "
+    [type]="'bar'"
+  ></canvas>
+</div>

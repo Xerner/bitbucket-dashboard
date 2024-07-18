@@ -7,7 +7,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { AppStore } from '../../stores/app.store.service';
 import { BitbucketAPI } from '../../services/bitbucket-api.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { DashboardStore as DashboardStore } from '../../stores/dashboard.store.service';
+import { PullRequestsStore as PullRequestsStore } from '../../stores/pull-requests.store.service';
 import { PullRequest } from '../../models/PullRequest';
 import { combineLatest, concatMap, forkJoin, merge, Observable } from 'rxjs';
 import { BitbucketRepository } from '../../models/BitbucketRepository';
@@ -28,14 +28,14 @@ export class InputsComponent implements OnInit {
   form = new FormGroup({
     workspace: new FormControl<string | null>(this.appStore.workspace(), [Validators.required]),
     token: new FormControl<string | null>(this.appStore.token(), [Validators.required]),
-    overdueThreshold: new FormControl<number | null>(this.appStore.overdueThreshold(), [Validators.required])
+    overdueThreshold: new FormControl<number | null>(this.appStore.overdueThreshold())
   });
 
   error = signal<HttpErrorResponse | null>(null);
 
   constructor(
     protected appStore: AppStore,
-    private dashboardStore: DashboardStore,
+    private pullRequestsStore: PullRequestsStore,
     private bitbucketAPI: BitbucketAPI
   ) {}
 
@@ -71,8 +71,7 @@ export class InputsComponent implements OnInit {
           complete: () => {
             this.error.set(null)
             this.appStore.isLoading.set(false);
-            console.log(allPullRequests);
-            this.dashboardStore.pullRequests.set(allPullRequests);
+            this.pullRequestsStore.pullRequests.set(allPullRequests);
           }
         })
       }
