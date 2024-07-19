@@ -4,14 +4,17 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { AppStore } from '../../stores/app.store.service';
+import { MatIconModule } from '@angular/material/icon';
+import { AppStore, QueryParamKey } from '../../stores/app.store.service';
 import { BitbucketAPI } from '../../services/bitbucket-api.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { PullRequestsStore as PullRequestsStore } from '../../stores/pull-requests.store.service';
 import { PullRequest } from '../../models/PullRequest';
-import { combineLatest } from 'rxjs';
-import { BitbucketRepository } from '../../models/BitbucketRepository';
-import { ActivatedRoute, ParamMap, Params, Router } from '@angular/router';
+import { combineLatest, concat, concatMap, forkJoin, map, merge, mergeAll, share } from 'rxjs';
+import { ActivatedRoute, ParamMap } from '@angular/router';
+import { Commit } from '../../models/Commit';
+import { CommitsStore } from '../../stores/commits.store.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-inputs',
@@ -21,34 +24,37 @@ import { ActivatedRoute, ParamMap, Params, Router } from '@angular/router';
     ReactiveFormsModule,
     MatInputModule,
     MatButtonModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    MatIconModule,
+    MatTooltipModule
   ],
   templateUrl: "inputs.component.html",
 })
 export class InputsComponent implements OnInit {
   form = new FormGroup({
-    workspace: new FormControl<string | null>(this.appStore.queryParams['workspace'](), [Validators.required]),
-    access_token: new FormControl<string | null>(this.appStore.queryParams['access_token'](), [Validators.required]),
     overdueThreshold: new FormControl<number | null>(this.appStore.queryParams['overdueThreshold']()),
-    daysWindow: new FormControl<number | null>(this.appStore.queryParams['daysWindow']())
-  });
+    daysWindow: new FormControl<number | null>(this.appStore.queryParams['daysWindow']()),
 
-  error = signal<HttpErrorResponse | null>(null);
+    workspace: new FormControl<string | null>(this.appStore.queryParams['workspace'](), [Validators.required]),
+    project: new FormControl<number | null>(this.appStore.queryParams['project'](), [Validators.required]),
+    access_token: new FormControl<string | null>(this.appStore.queryParams['access_token'](), [Validators.required]),
+  });
 
   constructor(
     protected appStore: AppStore,
     private pullRequestsStore: PullRequestsStore,
+    private commitsStore: CommitsStore,
     private bitbucketAPI: BitbucketAPI,
-    private router: Router,
     private route: ActivatedRoute
   ) { }
 
   ngOnInit() {
     this.route.queryParamMap.subscribe(this.parseQueryParams.bind(this))
-    this.subscribeToValueChanges(this.form.controls.workspace);
-    this.subscribeToValueChanges(this.form.controls.access_token);
     this.subscribeToValueChanges(this.form.controls.overdueThreshold);
     this.subscribeToValueChanges(this.form.controls.daysWindow);
+    this.subscribeToValueChanges(this.form.controls.workspace);
+    this.subscribeToValueChanges(this.form.controls.project);
+    this.subscribeToValueChanges(this.form.controls.access_token);
   }
 
   subscribeToValueChanges(control: FormControl) {
@@ -83,36 +89,50 @@ export class InputsComponent implements OnInit {
   }
 
   onFetchClick() {
-    if (!this.form.valid || this.appStore.isLoading()) {
+    if (!this.form.valid || this.appStore.itemsLoading()) {
       return;
     }
-    this.appStore.isLoading.set(true);
-    var allRepositories: BitbucketRepository[] = [];
     var allPullRequests: PullRequest[] = [];
-    this.bitbucketAPI.getRepositories().subscribe({
-      next: (repositories) => {
-        allRepositories = allRepositories.concat(repositories);
+    var allCommits: Commit[] = [];
+    var repositoriesSharedObservable = this.bitbucketAPI.getRepositories(this.appStore.queryParams[QueryParamKey.project]()).pipe(share())
+    this.appStore.itemsLoading.set(this.appStore.itemsLoading() + 1);
+    // this.appStore.itemsLoading.set(this.appStore.itemsLoading() + 2);
+    // fetch pull requests
+    // repositoriesSharedObservable.pipe(
+    //   concatMap(repositories => repositories.map(repository => this.bitbucketAPI.getPullRequests(repository.uuid))),
+    //   mergeAll(),
+    //   map((pullRequests) => pullRequests.flat())
+    // ).subscribe({
+    //   next: (pullRequests) => {
+    //     allPullRequests = allPullRequests.concat(pullRequests)
+    //   },
+    //   error: (error) => {
+    //     this.appStore.addError('fetching pull requests', error)
+    //   },
+    //   complete: () => {
+    //     this.appStore.removeError('fetching pull requests')
+    //     this.appStore.itemsLoading.set(this.appStore.itemsLoading() - 1);
+    //     this.pullRequestsStore.pullRequests.set(allPullRequests);
+    //   }
+    // })
+    // fetch commits
+    repositoriesSharedObservable.pipe(
+      concatMap(repositories => repositories.map(repository => this.bitbucketAPI.getCommits(repository.uuid))),
+      mergeAll(),
+      map((commits) => commits.flat())
+    ).subscribe({
+      next: (commits) => {
+        allCommits = allCommits.concat(commits)
       },
       error: (error) => {
-        this.error.set(error)
+        this.appStore.addError('fetching commits', error)
       },
       complete: () => {
-        var pullRequestObservables = allRepositories.map(repository => this.bitbucketAPI.getPullRequests(repository.uuid));
-        combineLatest(pullRequestObservables).subscribe({
-          next: (pullRequests) => {
-            allPullRequests = allPullRequests.concat(pullRequests.flat());
-          },
-          error: (error) => {
-            this.error.set(error)
-          },
-          complete: () => {
-            this.error.set(null)
-            this.appStore.isLoading.set(false);
-            this.pullRequestsStore.pullRequests.set(allPullRequests);
-          }
-        })
+        this.appStore.removeError('fetching commits')
+        this.appStore.itemsLoading.set(this.appStore.itemsLoading() - 1);
+        this.commitsStore.commits.set(allCommits);
       }
-    });
+    })
   }
 
   parseQueryParams(params: ParamMap) {
@@ -128,13 +148,19 @@ export class InputsComponent implements OnInit {
       overdueThresholdInt = null
     }
     this.form.controls.overdueThreshold.setValue(overdueThresholdInt)
+
+    var daysWindow = params.get('daysWindow');
+    var daysWindowInt: number | null;
+    if (typeof daysWindow === 'string') {
+      daysWindowInt = parseInt(daysWindow)
+    } else {
+      daysWindowInt = null
+    }
+    this.form.controls.daysWindow.setValue(daysWindowInt)
+
   }
 
-  errorToString(): string {
-    var error = this.error();
-    if (error == null) {
-      return "No error";
-    }
-    return JSON.stringify(error.error, null, 2)
+  errorToString(httpErrorResponse: HttpErrorResponse): string {
+    return httpErrorResponse.error.error.message
   }
 }

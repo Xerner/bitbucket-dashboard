@@ -1,6 +1,6 @@
+import { Author } from "./Author";
+
 export interface Commit {
   date: string;
-  author: {
-    type: string;
-  },
+  author: Author;
 }

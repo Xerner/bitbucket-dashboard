@@ -53,8 +53,10 @@
 
   <ng-container matColumnDef="created_on">
     <th mat-header-cell mat-sort-header *matHeaderCellDef>Age (Days)</th>
-    <td mat-cell *matCellDef="let keysResult">
-      {{ dashboardService.getAge(keysResult.obj.created_on) }}
+    <td mat-cell *matCellDef="let keysResult" class="text-center">
+      <div class="text-center">
+        {{ dashboardService.getAge(keysResult.obj.created_on) }}
+      </div>
     </td>
   </ng-container>
 
@@ -63,7 +65,9 @@
       Last Updated (Days)
     </th>
     <td mat-cell *matCellDef="let keysResult">
-      {{ dashboardService.getAge(keysResult.obj.updated_on) }}
+      <div class="text-center">
+        {{ dashboardService.getAge(keysResult.obj.updated_on) }}
+      </div>
     </td>
   </ng-container>
 

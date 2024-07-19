@@ -1,12 +1,12 @@
 <form
   [formGroup]="form"
   [ngClass]="{ 'border-b-4 border-blue-600': !appStore.isLoading() }"
-  class="grid grid-cols-2 bg-gradient-to-r from-blue-50 to-blue-300"
+  class="grid grid-cols-3 bg-gradient-to-r from-blue-50 to-blue-300"
 >
   <div class="grid grid-cols-2 gap-3 items-center justify-center p-3">
     <div class="font-medium font-xl col-span-2">Thresholds</div>
     <mat-form-field>
-      <mat-label>Overdue Threshold</mat-label>
+      <mat-label>Last Updated Overdue Threshold</mat-label>
       <input matInput type="number" formControlName="overdueThreshold" />
     </mat-form-field>
 
@@ -16,11 +16,16 @@
     </mat-form-field>
   </div>
 
-  <div class="grid grid-cols-3 gap-3 items-center justify-center p-3">
-    <div class="font-medium font-xl col-span-3">API</div>
+  <div class="col-span-2 grid grid-cols-4 gap-3 items-center justify-center p-3">
+    <div class="font-medium font-xl col-span-4">API</div>
     <mat-form-field>
       <mat-label>Workspace</mat-label>
       <input matInput formControlName="workspace" />
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Project</mat-label>
+      <input matInput formControlName="project" />
     </mat-form-field>
 
     <mat-form-field>
@@ -28,14 +33,23 @@
       <input matInput formControlName="access_token" />
     </mat-form-field>
 
-    <button
-      mat-raised-button
-      class="!bg-gradient-to-r from-blue-600 to-purple-600 !text-slate-100"
-      color="primary"
-      (click)="onFetchClick()"
-    >
-      Fetch
-    </button>
+    <div class="flex flex-col">
+      <button
+        mat-raised-button
+        class="!bg-gradient-to-r from-blue-600 to-purple-600 !text-slate-100"
+        color="primary"
+        (click)="onFetchClick()"
+      >
+        Fetch
+      </button>
+      <div
+        class="text-right text-xs font-light mt-2 mr-6 cursor-help underline decoration-dotted underline-offset-4"
+        [ngClass]="{ 'text-red-800 !font-bold': appStore.requestCounter() >= appStore.requestCounterWarningThreshold }"
+        matTooltip="Bitbuckets API supposedly has an request limit of 1000 per hour"
+      >
+        {{ appStore.requestCounter() }} requests sent
+      </div>
+    </div>
   </div>
 </form>
 
@@ -44,8 +58,15 @@
   mode="query"
   class="!bg-gradient-to-r from-blue-600 to-purple-600"
 ></mat-progress-bar>
-} @if (error()) {
-<div class="p-3 bg-red-100">
-  {{ errorToString() }}
+} @if (appStore.httpErrors()) {
+<div class="flex flex-col gap-3 p-3 bg-red-200 divide-y">
+  @for (error of appStore.httpErrors(); track $index) {
+  <div>
+    <div>Error at {{ error[0] }}</div>
+    <div>
+      {{ errorToString(error[1]) }}
+    </div>
+  </div>
+  }
 </div>
 }
