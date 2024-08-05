@@ -1,10 +1,4 @@
-name: Docker Image CI
-
-env:
-  CONTAINER_NAME: bitbucket-dashboard:$(date +%s)
-  IMAGE_NAME: bitbucket-dashboard:$(date +%s)
-  DOCKER_PORT: 80
-  EXTERNAL_PORT: 80
+name: Github Pages - Production
 
 concurrency:
   group: "pages"
@@ -17,15 +11,8 @@ on:
     branches: [ "main" ]
 
 jobs: 
-  build-and-push-docker:
+  build-and-deploy-to-github-pages:
     runs-on: ubuntu-latest
     steps:
-      - name: Build and push Docker images
-        uses: docker/build-push-action@v6.5.0
-        with:
-          tags: bitbucket-dashboard:latest
-          push: false
-      - name: Run Container
-        uses: OXIDFabian/docker-run-action@v1.0.0
-        with:
-          image: bitbucket-dashboard:latest
+      - name: Deploy Angular to GitHub Pages
+        uses: bitovi/github-actions-angular-to-github-pages@v1.0.0
