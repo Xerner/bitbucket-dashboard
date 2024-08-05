@@ -10,9 +10,11 @@ on:
   pull_request:
     branches: [ "main" ]
 
-jobs: 
+jobs:
   build-and-deploy-to-github-pages:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy Angular to GitHub Pages
         uses: bitovi/github-actions-angular-to-github-pages@v1.0.0
+        with:
+          path: dist/bitbucket-dashboard
