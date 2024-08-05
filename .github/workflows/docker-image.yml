@@ -22,4 +22,9 @@ jobs:
     steps:
       - name: Build and push Docker images
         uses: docker/build-push-action@v6.5.0
-            
+        with:
+          tags: bitbucket-dashboard:latest
+          push: false
+      - uses: oxidfabian/docker-run-action@v1
+        with:
+          image: bitbucket-dashboard:latest
