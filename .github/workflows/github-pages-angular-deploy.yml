@@ -22,5 +22,5 @@ jobs:
       - name: Deploy Angular to GitHub Pages
         uses: bitovi/github-actions-angular-to-github-pages@v1.0.0
         with:
-          path: dist/bitbucket-dashboard
+          path: dist/bitbucket-dashboard/browser
           build_command: "npm run build"
