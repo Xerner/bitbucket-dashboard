@@ -1,1 +1,1 @@
-docker build -f docker.dockerfile -t bitbucket-dashboard .
+docker build -f Dockerfile -t bitbucket-dashboard .

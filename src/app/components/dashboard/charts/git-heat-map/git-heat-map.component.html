@@ -1,8 +1,23 @@
-<div class="text-xs font-light mb-1 text-nowrap overflow-hidden" [matTooltip]="author()">
+<div
+  class="text-xs font-light mb-1 text-nowrap overflow-hidden"
+  [matTooltip]="author()"
+>
   {{ author() }}
 </div>
-<div class="grid grid-cols-7 grid-rows-7 gap-1">
-  @for (commitCount of commitCounts(); track $index) {
-  <div class="w-3 h-3 rounded-sm" [style]="getCellStyle(commitCount)" [matTooltip]="getCountTooltip(commitCount)"></div>
-  }
+<div class="flex">
+  <div class="grow"></div>
+  <div class="grid gap-1" [style]="getColumnContainerStyle()">
+    @for (weekCounts of commitCounts(); track $index) {
+      <div class="grid grid-cols-1" [style]="getRowContainerStyle()">
+        @for (commitCount of weekCounts; track $index) {
+        <div
+          class="rounded-sm"
+          [style]="getCellStyle(commitCount)"
+          [matTooltip]="getCountTooltip(commitCount)"
+          matTooltipClass="whitespace-pre-line"
+        ></div>
+        }
+      </div>
+    }
+  </div>
 </div>

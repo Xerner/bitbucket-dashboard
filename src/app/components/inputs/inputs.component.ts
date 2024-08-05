@@ -95,26 +95,25 @@ export class InputsComponent implements OnInit {
     var allPullRequests: PullRequest[] = [];
     var allCommits: Commit[] = [];
     var repositoriesSharedObservable = this.bitbucketAPI.getRepositories(this.appStore.queryParams[QueryParamKey.project]()).pipe(share())
-    this.appStore.itemsLoading.set(this.appStore.itemsLoading() + 1);
-    // this.appStore.itemsLoading.set(this.appStore.itemsLoading() + 2);
+    this.appStore.itemsLoading.set(this.appStore.itemsLoading() + 2);
     // fetch pull requests
-    // repositoriesSharedObservable.pipe(
-    //   concatMap(repositories => repositories.map(repository => this.bitbucketAPI.getPullRequests(repository.uuid))),
-    //   mergeAll(),
-    //   map((pullRequests) => pullRequests.flat())
-    // ).subscribe({
-    //   next: (pullRequests) => {
-    //     allPullRequests = allPullRequests.concat(pullRequests)
-    //   },
-    //   error: (error) => {
-    //     this.appStore.addError('fetching pull requests', error)
-    //   },
-    //   complete: () => {
-    //     this.appStore.removeError('fetching pull requests')
-    //     this.appStore.itemsLoading.set(this.appStore.itemsLoading() - 1);
-    //     this.pullRequestsStore.pullRequests.set(allPullRequests);
-    //   }
-    // })
+    repositoriesSharedObservable.pipe(
+      concatMap(repositories => repositories.map(repository => this.bitbucketAPI.getPullRequests(repository.uuid))),
+      mergeAll(),
+      map((pullRequests) => pullRequests.flat())
+    ).subscribe({
+      next: (pullRequests) => {
+        allPullRequests = allPullRequests.concat(pullRequests)
+      },
+      error: (error) => {
+        this.appStore.addError('fetching pull requests', error)
+      },
+      complete: () => {
+        this.appStore.removeError('fetching pull requests')
+        this.appStore.itemsLoading.set(this.appStore.itemsLoading() - 1);
+        this.pullRequestsStore.pullRequests.set(allPullRequests);
+      }
+    })
     // fetch commits
     repositoriesSharedObservable.pipe(
       concatMap(repositories => repositories.map(repository => this.bitbucketAPI.getCommits(repository.uuid))),

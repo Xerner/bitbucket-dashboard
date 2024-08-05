@@ -58,6 +58,9 @@ export class AppStore {
   }
 
   updateQueryParam(name: string, value: any) {
+    if (value == null) {
+      return;
+    }
     const queryParams: Params = { [name]: value.toString() };
     var currentValue = this.route.snapshot.queryParamMap.get(name);
     if (currentValue == value) {
