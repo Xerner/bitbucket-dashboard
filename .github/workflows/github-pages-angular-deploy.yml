@@ -4,8 +4,10 @@ concurrency:
   group: "pages"
   cancel-in-progress: false
 
-permissions: 
-  id-token: "write"
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 on:
   push:
