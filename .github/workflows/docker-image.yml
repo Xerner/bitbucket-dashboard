@@ -6,12 +6,20 @@ env:
   DOCKER_PORT: 80
   EXTERNAL_PORT: 80
 
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
-runs:
-  using: 'docker'
-  image: 'Dockerfile'
+jobs: 
+  build-and-push-docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v6.5.0
+            
