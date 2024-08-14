@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { ChartsComponent } from './charts/charts.component';
 import { PullRequestTableComponent } from './pull-request-table/pull-request-table.component';
+import { GitCommitsComponent } from './git-commits/git-commits.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -9,7 +9,7 @@ import { PullRequestTableComponent } from './pull-request-table/pull-request-tab
   imports: [
     CommonModule,
     PullRequestTableComponent,
-    ChartsComponent
+    GitCommitsComponent,
   ],
   templateUrl: "dashboard.component.html",
 })

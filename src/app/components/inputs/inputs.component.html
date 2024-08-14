@@ -1,36 +1,22 @@
-<form
-  [formGroup]="form"
+<div
   [ngClass]="{ 'border-b-4 border-blue-600': !appStore.isLoading() }"
-  class="grid grid-cols-3 bg-gradient-to-r from-blue-50 to-blue-300"
+  class="bg-gradient-to-r from-blue-50 to-blue-300"
 >
-  <div class="grid grid-cols-2 gap-3 items-center justify-center p-3">
-    <div class="font-medium font-xl col-span-2">Thresholds</div>
-    <mat-form-field>
-      <mat-label>Last Updated Overdue Threshold</mat-label>
-      <input matInput type="number" formControlName="overdueThreshold" />
-    </mat-form-field>
-
-    <mat-form-field>
-      <mat-label>Time Window (Days)</mat-label>
-      <input matInput type="number" formControlName="daysWindow" />
-    </mat-form-field>
-  </div>
-
-  <div class="col-span-2 grid grid-cols-4 gap-3 items-center justify-center p-3">
-    <div class="font-medium font-xl col-span-4">API</div>
+  <div class="grid grid-cols-4 gap-3 items-center justify-center p-3">
+    <div class="font-medium font-xl col-span-4">API Inputs</div>
     <mat-form-field>
       <mat-label>Workspace</mat-label>
-      <input matInput formControlName="workspace" />
+      <input matInput [formControl]="inputsService.form.controls.workspace" />
     </mat-form-field>
 
     <mat-form-field>
       <mat-label>Project</mat-label>
-      <input matInput formControlName="project" />
+      <input matInput [formControl]="inputsService.form.controls.project" />
     </mat-form-field>
 
     <mat-form-field>
       <mat-label>Token</mat-label>
-      <input matInput formControlName="access_token" />
+      <input matInput [formControl]="inputsService.form.controls.access_token" />
     </mat-form-field>
 
     <div class="flex flex-col">
@@ -51,7 +37,7 @@
       </div>
     </div>
   </div>
-</form>
+</div>
 
 @if (appStore.isLoading()) {
 <mat-progress-bar

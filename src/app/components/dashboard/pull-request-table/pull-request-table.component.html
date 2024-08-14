@@ -1,3 +1,11 @@
+<div class="grid grid-cols-2 gap-3 items-center justify-center p-3 pb-0">
+  <div class="font-medium font-xl col-span-2">Pull Request Inputs</div>
+  <mat-form-field>
+    <mat-label>Last Updated Threshold</mat-label>
+    <input matInput type="number" [formControl]="inputsService.form.controls.overdueThreshold" />
+  </mat-form-field>
+</div>
+
 <div class="grid grid-cols-2 border-b">
   <div class="font-medium font-2xl p-3">Open Pull Requests</div>
   <div
@@ -11,6 +19,37 @@
         ? "No pull requests"
         : pullRequestsCount() + " pull requests"
     }}
+  </div>
+</div>
+
+<div class="flex gap-6 row-span-1">
+  <div class="w-1/2">
+    <canvas
+      baseChart
+      [data]="pullRequestsStore.pullRequestsLastUpdated()"
+      [options]="
+        pullRequestsStore.getOptions(
+          'Days Since Pull Requests Were Last Updated',
+          'Days Since Last Updated',
+          'Number Of Pull Requests'
+        )
+      "
+      [type]="'bar'"
+    ></canvas>
+  </div>
+  <div class="w-1/2">
+    <canvas
+      baseChart
+      [data]="pullRequestsStore.pullRequestsAges()"
+      [options]="
+        pullRequestsStore.getOptions(
+          'Days Since Pull Requests Were Opened',
+          'Days Since Created',
+          'Number Of Pull Requests'
+        )
+      "
+      [type]="'bar'"
+    ></canvas>
   </div>
 </div>
 

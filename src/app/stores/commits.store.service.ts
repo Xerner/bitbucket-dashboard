@@ -1,6 +1,5 @@
 import { computed, Injectable, signal } from "@angular/core";
 import { Commit } from "../models/Commit";
-import { User } from "../models/User";
 
 @Injectable({ providedIn: 'root' })
 export class CommitsStore {
@@ -11,9 +10,9 @@ export class CommitsStore {
     var commits = this.commits();
     var authorsCommits: [string, Commit[]][] = []
     commits.forEach((commit) => {
-      var authorName = commit.author.raw.substring(0, commit.author.raw.indexOf("<"))
+      var authorName = commit.author.raw.substring(0, commit.author.raw.indexOf("<")).trim();
       var authorCommits = authorsCommits.find(ac => {
-        return ac[0] == authorName;
+        return ac[0].trim() == authorName;
       })
       if (authorCommits == undefined) {
         authorCommits = [authorName, []]

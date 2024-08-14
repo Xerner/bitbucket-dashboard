@@ -13,6 +13,9 @@ import { debounceTime, fromEvent, tap } from 'rxjs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { PullRequestsService } from '../../../services/pull-requests.service';
 import { DomSanitizer } from '@angular/platform-browser';
+import { InputsService } from '../../../services/inputs.service';
+import { ReactiveFormsModule } from '@angular/forms';
+import { BaseChartDirective } from 'ng2-charts';
 
 @Component({
   selector: 'app-pull-request-table',
@@ -22,8 +25,10 @@ import { DomSanitizer } from '@angular/platform-browser';
     MatTableModule,
     MatSortModule,
     MatFormFieldModule,
+    ReactiveFormsModule,
     MatInputModule,
-    MatProgressBarModule
+    BaseChartDirective,
+    MatProgressBarModule,
   ],
   templateUrl: 'pull-request-table.component.html',
 })
@@ -46,6 +51,7 @@ export class PullRequestTableComponent {
     protected pullRequestsStore: PullRequestsStore,
     protected pullRequestService: PullRequestsService,
     private domSanitizer: DomSanitizer,
+    protected inputsService: InputsService,
     protected appStore: AppStore
   ) {}
 
