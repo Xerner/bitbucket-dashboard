@@ -2,8 +2,8 @@
   [ngClass]="{ 'border-b-4 border-blue-600': !appStore.isLoading() }"
   class="bg-gradient-to-r from-blue-50 to-blue-300"
 >
-  <div class="grid grid-cols-4 gap-3 items-center justify-center p-3">
-    <div class="font-medium font-xl col-span-4">API Inputs</div>
+  <div class="grid grid-cols-6 gap-3 items-center justify-center p-3">
+    <div class="font-medium font-xl col-span-6">API Inputs</div>
     <mat-form-field>
       <mat-label>Workspace</mat-label>
       <input matInput [formControl]="inputsService.form.controls.workspace" />
@@ -17,6 +17,11 @@
     <mat-form-field>
       <mat-label>Token</mat-label>
       <input matInput [formControl]="inputsService.form.controls.access_token" />
+    </mat-form-field>
+
+    <mat-form-field class="col-span-2">
+      <mat-label>Username Aliases</mat-label>
+      <input matInput [formControl]="inputsService.form.controls.author_aliases" placeholder="[{ name: 'john', aliases: ['johnny'] }]" />
     </mat-form-field>
 
     <div class="flex flex-col">

@@ -14,6 +14,7 @@ export class InputsService {
     workspace: new FormControl<string | null>(this.appStore.queryParams['workspace'](), [Validators.required]),
     project: new FormControl<number | null>(this.appStore.queryParams['project'](), [Validators.required]),
     access_token: new FormControl<string | null>(this.appStore.queryParams['access_token'](), [Validators.required]),
+    author_aliases: new FormControl<string | null>(this.appStore.queryParams['author_aliases']()),
   });
 
   constructor(
@@ -21,11 +22,10 @@ export class InputsService {
     private route: ActivatedRoute,
   ) {
     this.route.queryParamMap.subscribe(this.parseQueryParams.bind(this))
-    this.subscribeToValueChanges(this.form.controls.overdueThreshold);
-    this.subscribeToValueChanges(this.form.controls.daysWindow);
-    this.subscribeToValueChanges(this.form.controls.workspace);
-    this.subscribeToValueChanges(this.form.controls.project);
-    this.subscribeToValueChanges(this.form.controls.access_token);
+    Object.keys(this.form.controls).forEach((key) => {
+      var control = this.form.controls[key as keyof typeof this.form.controls];
+      this.subscribeToValueChanges(control);
+    })
   }
 
   subscribeToValueChanges(control: FormControl) {

@@ -9,6 +9,7 @@ export enum QueryParamKey {
   workspace = 'workspace',
   project = 'project',
   access_token = 'access_token',
+  author_aliases = 'author_aliases',
 }
 
 @Injectable({
@@ -35,12 +36,13 @@ export class AppStore {
     this.httpErrors.set(errors.filter(errors => errors[0] != source))
   }
 
-  queryParams: Record<QueryParamKeyType, WritableSignal<any>> = {
-    'overdueThreshold': signal<number | null>(null),
-    'daysWindow': signal<number | null>(null),
-    'workspace': signal<string | null>(""),
-    'project': signal<string | null>(""),
-    'access_token': signal<string | null>(""),
+  queryParams: { [key: QueryParamKeyType]: WritableSignal<any> } = {
+    overdueThreshold: signal<number | null>(null),
+    daysWindow: signal<number | null>(null),
+    workspace: signal<string | null>(""),
+    project: signal<string | null>(""),
+    access_token: signal<string | null>(""),
+    author_aliases: signal<string | null>(""),
   }
   itemsLoading = signal<number>(0);
   isLoading = computed<boolean>(() => this.itemsLoading() != 0);
