@@ -16,6 +16,8 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { InputsService } from '../../../services/inputs.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { BaseChartDirective } from 'ng2-charts';
+import { MatButtonModule } from '@angular/material/button';
+import { BitbucketService } from '../../../services/bitbucket.service';
 
 @Component({
   selector: 'app-pull-request-table',
@@ -29,6 +31,7 @@ import { BaseChartDirective } from 'ng2-charts';
     MatInputModule,
     BaseChartDirective,
     MatProgressBarModule,
+    MatButtonModule,
   ],
   templateUrl: 'pull-request-table.component.html',
 })
@@ -52,7 +55,8 @@ export class PullRequestTableComponent {
     protected pullRequestService: PullRequestsService,
     private domSanitizer: DomSanitizer,
     protected inputsService: InputsService,
-    protected appStore: AppStore
+    protected appStore: AppStore,
+    private bitbucketService: BitbucketService,
   ) {}
 
   ngOnInit(): void {
@@ -83,5 +87,9 @@ export class PullRequestTableComponent {
 
   getHighlight(keysResult: Fuzzysort.KeysResult<PullRequest>, column: string): string {
     return this.domSanitizer.sanitize(SecurityContext.HTML, this.pullRequestService.getHighlight(keysResult, column)) ?? ""
+  }
+
+  onFetchClicked() {
+    this.bitbucketService.getPullRequests();
   }
 }

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
-import { InputsComponent } from "./components/inputs/inputs.component";
+import { ApiInputsComponent } from "./components/api-inputs/api-inputs.component";
 import { DashboardComponent } from "./components/dashboard/dashboard.component";
 
 @Component({
@@ -10,7 +10,7 @@ import { DashboardComponent } from "./components/dashboard/dashboard.component";
   imports: [
     CommonModule,
     RouterOutlet,
-    InputsComponent,
+    ApiInputsComponent,
     DashboardComponent
 ],
   templateUrl: './app.component.html',

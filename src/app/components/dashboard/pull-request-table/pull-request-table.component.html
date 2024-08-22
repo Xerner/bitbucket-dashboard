@@ -1,9 +1,23 @@
-<div class="grid grid-cols-2 gap-3 items-center justify-center p-3 pb-0">
-  <div class="font-medium font-xl col-span-2">Pull Request Inputs</div>
-  <mat-form-field>
-    <mat-label>Last Updated Threshold</mat-label>
-    <input matInput type="number" [formControl]="inputsService.form.controls.overdueThreshold" />
-  </mat-form-field>
+<div class="p-3 pb-0">
+  <div class="font-medium font-xl mb-3">Pull Request Inputs</div>
+  <div class="grid grid-cols-2 gap-3 w-full">
+    <mat-form-field>
+      <mat-label>Last Updated Threshold</mat-label>
+      <input
+        matInput
+        type="number"
+        [formControl]="inputsService.form.controls.overdueThreshold"
+      />
+    </mat-form-field>
+    <button
+      mat-raised-button
+      class="!bg-gradient-to-r from-blue-600 to-purple-600 !text-slate-100 mt-2"
+      color="primary"
+      (click)="onFetchClicked()"
+    >
+      Fetch Pull Requests
+    </button>
+  </div>
 </div>
 
 <div class="grid grid-cols-2 border-b">

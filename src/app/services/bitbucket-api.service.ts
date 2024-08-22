@@ -1,7 +1,7 @@
-import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
+  import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { AppStore, QueryParamKey } from "../stores/app.store.service";
-import { filter, from, map, Observable, takeWhile } from "rxjs";
+import { from, map, Observable } from "rxjs";
 import { BitbucketApiResponse } from "../models/BitbucketApiResponse";
 import { PullRequest } from "../models/PullRequest";
 import { BitbucketRepository } from "../models/BitbucketRepository";
