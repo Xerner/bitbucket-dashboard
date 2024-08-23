@@ -11,6 +11,7 @@ import { getProperty } from '../library/get-property';
 export class PullRequestsService {
   displayedColumns = [
     'destination.repository.name',
+    'author.display_name',
     'title',
     'created_on',
     'updated_on'

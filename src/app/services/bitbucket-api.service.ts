@@ -8,6 +8,13 @@ import { BitbucketRepository } from "../models/BitbucketRepository";
 import { Commit } from "../models/Commit";
 import { DateTime } from "luxon";
 
+export enum PULL_REQUEST_STATES {
+  OPEN = "OPEN",
+  MERGED = "MERGED",
+  DECLINED = "DECLINED",
+  SUPERSEDED = "SUPERSEDED",
+}
+
 @Injectable({
   providedIn: "root",
 })
@@ -56,12 +63,23 @@ export class BitbucketAPI {
     });
   }
 
+  // https://developer.atlassian.com/cloud/bitbucket/rest/api-group-pullrequests/#api-repositories-workspace-repo-slug-pullrequests-get
   getPullRequests(repository: string) {
+    var states = Object.values(PULL_REQUEST_STATES).map(state => "state=" + state)
+    var queryStr: string = states.join("&")
+    var dateForQuery = this.getDateFromDateWindowForQuery(this.appStore.queryParams[QueryParamKey.pullRequestDaysWindow]());
+    if (dateForQuery == null) {
+      return [];
+    }
     return this.getAllPages(
       this.http.get<BitbucketApiResponse<PullRequest>>(
-        `${this.REPOSITORIES_URL}/${this.appStore.queryParams['workspace']()}/${repository}/pullrequests`,
-        { headers: this.getHeaders(this.appStore.queryParams['access_token']()) })
-    )
+        `${this.REPOSITORIES_URL}/${this.appStore.queryParams['workspace']()}/${repository}/pullrequests?${queryStr}&fields=%2Bvalues.participants`,
+        {
+          headers: this.getHeaders(this.appStore.queryParams['access_token']())
+        }
+      ),
+      (this.allAreInsideDateWindow<PullRequest>).bind(this, dateForQuery, this.isPullRequestInsideDateWindow)
+    ).pipe(map((pullRequests) => pullRequests.filter(pullRequest => this.isPullRequestInsideDateWindow(pullRequest, dateForQuery!))))
   }
 
   getRepositories(project: string) {
@@ -75,26 +93,32 @@ export class BitbucketAPI {
   }
 
   getCommits(repository: string) {
-    var daysWindow = this.appStore.queryParams[QueryParamKey.daysWindow]();
-    if (daysWindow == null) {
-      return []; // do not send a request to retrieve all commits without filtering them by date (or some other means)
+    var dateForQuery = this.getDateFromDateWindowForQuery(this.appStore.queryParams[QueryParamKey.commitDaysWindow]());
+    if (dateForQuery == null) {
+      return [];
     }
-    var dateForQuery = DateTime.now().toUTC().startOf('day').minus({ 'days': daysWindow - 1 });
     return this.getAllPages(
       this.http.get<BitbucketApiResponse<Commit>>(
         `${this.REPOSITORIES_URL}/${this.appStore.queryParams['workspace']()}/${repository}/commits`,
-        { headers: this.getHeaders(this.appStore.queryParams['access_token']()) })
-      , this.allCommitsAreInsideDateWindow.bind(this, dateForQuery)
-    ).pipe(map((commits) => commits.filter(commit => this.isCommitInsideDateWindow(commit, dateForQuery))))
+        {
+          headers: this.getHeaders(this.appStore.queryParams['access_token']())
+        }
+      ),
+      (this.allAreInsideDateWindow<Commit>).bind(this, dateForQuery, this.isCommitInsideDateWindow)
+    ).pipe(map((commits) => commits.filter(commit => this.isCommitInsideDateWindow(commit, dateForQuery!))))
   }
 
-  allCommitsAreInsideDateWindow(dateWindow: DateTime, commits: Commit[]) {
-    var allCommitsAreInsideDateWindow = commits.every(commit => this.isCommitInsideDateWindow(commit, dateWindow));
+  allAreInsideDateWindow<T>(dateWindow: DateTime, checker: (item: T, datewindow: DateTime) => boolean, items: T[]) {
+    var allCommitsAreInsideDateWindow = items.every(item => checker(item, dateWindow));
     return allCommitsAreInsideDateWindow
   }
 
   isCommitInsideDateWindow(commit: Commit, dateWindow: DateTime) {
     return DateTime.fromISO(commit.date) > dateWindow;
+  }
+
+  isPullRequestInsideDateWindow(pullRequest: PullRequest, dateWindow: DateTime) {
+    return DateTime.fromISO(pullRequest.created_on) > dateWindow;
   }
 
   getHeaders(token: string | null): HttpHeaders | { [header: string]: string | string[]; } {
@@ -106,5 +130,12 @@ export class BitbucketAPI {
 
   getTotalPages<T>(response: BitbucketApiResponse<T>) {
     return response.page * (response.page)
+  }
+
+  private getDateFromDateWindowForQuery(daysWindow: number | null) {
+    if (daysWindow == null) {
+      return null; // do not send a request to retrieve all commits without filtering them by date (or some other means)
+    }
+    return DateTime.now().toUTC().startOf('day').minus({ 'days': daysWindow - 1 });
   }
 }

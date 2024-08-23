@@ -3,6 +3,7 @@ import { ChartData, ChartOptions, ChartTypeRegistry } from 'chart.js';
 import { DashboardService } from '../services/dashboard.service';
 import { PullRequest } from '../models/PullRequest';
 import { PullRequestsService } from '../services/pull-requests.service';
+import { PULL_REQUEST_STATES } from '../services/bitbucket-api.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,9 +12,16 @@ export class PullRequestsStore {
   readonly MIN_LABEL_COUNT = 7;
 
   pullRequests = signal<PullRequest[] | null>(null);
+  openPullRequests = computed(() => {
+    var pullRequests = this.pullRequests();
+    if (pullRequests == null) {
+      return [];
+    }
+    return pullRequests?.filter(pullRequest => pullRequest.state == PULL_REQUEST_STATES.OPEN)
+  })
   tableFilter = signal<string>("");
   filteredPullRequests = computed<Fuzzysort.KeysResults<PullRequest> | null>(() => {
-    var pullRequests = this.pullRequests();
+    var pullRequests = this.openPullRequests();
     if (pullRequests == null) {
       return null;
     }
@@ -57,7 +65,7 @@ export class PullRequestsStore {
   }
 
   getAgesChartData(): ChartData<keyof ChartTypeRegistry, number[], string> {
-    var data = this.pullRequests();
+    var data = this.openPullRequests();
     var chartDataset = this.dashboardService.getChartDataTemplate<number>("Count");
     if (data == null) {
       return chartDataset;
@@ -89,7 +97,7 @@ export class PullRequestsStore {
   }
 
   getLastUpdatedChartData(): ChartData<keyof ChartTypeRegistry, number[], string> {
-    var data = this.pullRequests();
+    var data = this.openPullRequests();
     var chartDataset = this.dashboardService.getChartDataTemplate<number>("Count");
     if (data == null) {
       return chartDataset;
@@ -118,6 +126,70 @@ export class PullRequestsStore {
     chartDataset.datasets[0].data = chartData;
     chartDataset.datasets[0].backgroundColor = labels.map(age => this.dashboardService.getOverdueBackgroundColor(age));
     chartDataset.labels = labels.map(i => i.toString());
+    return chartDataset;
+  }
+
+  getSubmittedByAuthorChartData() {
+    var data = this.pullRequests();
+    var chartDataset = this.dashboardService.getChartDataTemplate<number>("Count");
+    if (data == null) {
+      return chartDataset;
+    }
+    var authorCounts: [string, number][] = []
+    data.forEach(pullRequest => {
+      var author = pullRequest.author.display_name
+      var count = authorCounts.find(ageCount_ => ageCount_[0] == author)
+      if (count == undefined) {
+        count = [author, 0]
+        authorCounts.push(count);
+      }
+      count[1]++;
+      return count;
+    })
+    authorCounts.sort((count1, count2) => count1[1] > count2[1] ? -1 : 1);
+    chartDataset.datasets[0].data = authorCounts.map(authorCount => authorCount[1]);
+    chartDataset.labels = authorCounts.map(authorCount => authorCount[0]);
+    return chartDataset;
+  }
+
+  getParticipatedByAuthorChartData() {
+    var data = this.pullRequests();
+    var chartDataset = this.dashboardService.getChartDataTemplate<number>("Count");
+
+    if (data == null) {
+      return chartDataset;
+    }
+    var participationCounts: [string, number][] = []
+    data.forEach(pullRequest => {
+      var author = pullRequest.author.display_name
+      pullRequest.participants.forEach(participant => {
+        if (author == participant.user.display_name) {
+          return;
+        }
+        var count = participationCounts.find(count_ => count_[0] == participant.user.display_name)
+        if (count == undefined) {
+          count = [participant.user.display_name, 0]
+          participationCounts.push(count);
+        }
+        if (participant.participated_on != null) {
+          count[1]++;
+        }
+      })
+    })
+    participationCounts.sort((count1, count2) => count1[1] > count2[1] ? -1 : 1);
+    var expectedParticipation = Math.floor(data.length / participationCounts.length) * 2;
+    var expectedParticipationChartData = participationCounts.map(_ => expectedParticipation);
+    chartDataset.datasets.push({
+            type: 'line',
+            label: 'Expected Participation = (# of PRs / participants) * 2',
+            data: expectedParticipationChartData,
+            fill: false,
+            pointStyle: false,
+            borderColor: 'rgba(196, 64, 64, 0.8)'
+    });
+    chartDataset.datasets[0].data = participationCounts.map(count => count[1]);
+    chartDataset.datasets[0].backgroundColor = 'rgba(196, 64, 196, 0.6)';
+    chartDataset.labels = participationCounts.map(count => count[0]);
     return chartDataset;
   }
 }

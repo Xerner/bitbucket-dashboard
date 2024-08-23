@@ -1,15 +1,16 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { computed, Injectable, signal, WritableSignal } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
+import { aliases } from '../../settings/aliases';
 
 export type QueryParamKeyType = QueryParamKey | string;
 export enum QueryParamKey {
   overdueThreshold = 'overdueThreshold',
-  daysWindow = 'daysWindow',
+  commitDaysWindow = 'commitDaysWindow',
+  pullRequestDaysWindow = 'pullRequestDaysWindow',
   workspace = 'workspace',
   project = 'project',
   access_token = 'access_token',
-  author_aliases = 'author_aliases',
 }
 
 @Injectable({
@@ -37,13 +38,14 @@ export class AppStore {
   }
 
   queryParams: { [key: QueryParamKeyType]: WritableSignal<any> } = {
-    overdueThreshold: signal<number | null>(null),
-    daysWindow: signal<number | null>(null),
-    workspace: signal<string | null>(""),
-    project: signal<string | null>(""),
-    access_token: signal<string | null>(""),
-    author_aliases: signal<string | null>(""),
+    [QueryParamKey.overdueThreshold]: signal<number | null>(null),
+    [QueryParamKey.commitDaysWindow]: signal<number | null>(null),
+    [QueryParamKey.pullRequestDaysWindow]: signal<number | null>(null),
+    [QueryParamKey.workspace]: signal<string | null>(""),
+    [QueryParamKey.project]: signal<string | null>(""),
+    [QueryParamKey.access_token]: signal<string | null>(""),
   }
+  author_aliases = signal<string | null>(JSON.stringify(aliases));
   itemsLoading = signal<number>(0);
   isLoading = computed<boolean>(() => this.itemsLoading() != 0);
   requestCounter = signal<number>(0);

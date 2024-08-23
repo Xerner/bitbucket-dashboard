@@ -45,9 +45,9 @@ export class DashboardService {
 
   getOverdueBackgroundColor(age: number) {
     if (this.isAgeOverThreshold(age)) {
-      return 'rgba(255, 99, 132, 0.2)';
+      return 'rgba(255, 99, 132, 0.6)';
     }
-    return 'rgba(75, 192, 192, 0.2)';
+    return 'rgba(75, 192, 192, 0.6)';
   }
 
   isAgeOverThreshold(age: number) {

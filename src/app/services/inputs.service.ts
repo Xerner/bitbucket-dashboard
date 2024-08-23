@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { AppStore } from '../stores/app.store.service';
+import { AppStore, QueryParamKey } from '../stores/app.store.service';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 
 @Injectable({
@@ -8,13 +8,14 @@ import { ActivatedRoute, ParamMap } from '@angular/router';
 })
 export class InputsService {
   form = new FormGroup({
-    overdueThreshold: new FormControl<number | null>(this.appStore.queryParams['overdueThreshold']()),
-    daysWindow: new FormControl<number | null>(this.appStore.queryParams['daysWindow']()),
+    [QueryParamKey.overdueThreshold]: new FormControl<number | null>(this.appStore.queryParams[QueryParamKey.overdueThreshold]()),
+    [QueryParamKey.commitDaysWindow]: new FormControl<number | null>(this.appStore.queryParams[QueryParamKey.commitDaysWindow]()),
+    [QueryParamKey.pullRequestDaysWindow]: new FormControl<number | null>(this.appStore.queryParams[QueryParamKey.pullRequestDaysWindow]()),
 
-    workspace: new FormControl<string | null>(this.appStore.queryParams['workspace'](), [Validators.required]),
-    project: new FormControl<number | null>(this.appStore.queryParams['project'](), [Validators.required]),
-    access_token: new FormControl<string | null>(this.appStore.queryParams['access_token'](), [Validators.required]),
-    author_aliases: new FormControl<string | null>(this.appStore.queryParams['author_aliases']()),
+    [QueryParamKey.workspace]: new FormControl<string | null>(this.appStore.queryParams[QueryParamKey.workspace](), [Validators.required]),
+    [QueryParamKey.project]: new FormControl<number | null>(this.appStore.queryParams[QueryParamKey.project](), [Validators.required]),
+    [QueryParamKey.access_token]: new FormControl<string | null>(this.appStore.queryParams[QueryParamKey.access_token](), [Validators.required]),
+    author_aliases: new FormControl<string | null>(this.appStore.author_aliases()),
   });
 
   constructor(
@@ -60,11 +61,13 @@ export class InputsService {
   }
 
   parseQueryParams(params: ParamMap) {
-    var workspace = params.get('workspace');
-    if (workspace != this.appStore.queryParams['workspace']()) {
+    // workspace
+    var workspace = params.get(QueryParamKey.workspace);
+    if (workspace != this.appStore.queryParams[QueryParamKey.workspace]()) {
       this.form.controls.workspace.setValue(workspace);
     }
-    var overdueThreshold = params.get('overdueThreshold');
+    // overdue threshold
+    var overdueThreshold = params.get(QueryParamKey.overdueThreshold);
     var overdueThresholdInt: number | null;
     if (typeof overdueThreshold === 'string') {
       overdueThresholdInt = parseInt(overdueThreshold)
@@ -73,13 +76,24 @@ export class InputsService {
     }
     this.form.controls.overdueThreshold.setValue(overdueThresholdInt)
 
-    var daysWindow = params.get('daysWindow');
-    var daysWindowInt: number | null;
-    if (typeof daysWindow === 'string') {
-      daysWindowInt = parseInt(daysWindow)
+    // commit days window
+    var commitDaysWindow = params.get(QueryParamKey.commitDaysWindow);
+    var commitDaysWindowInt: number | null;
+    if (typeof commitDaysWindow === 'string') {
+      commitDaysWindowInt = parseInt(commitDaysWindow)
     } else {
-      daysWindowInt = null
+      commitDaysWindowInt = null
     }
-    this.form.controls.daysWindow.setValue(daysWindowInt)
+    this.form.controls.commitDaysWindow.setValue(commitDaysWindowInt)
+
+    // pull request days window
+    var pullRequestDaysWindow = params.get(QueryParamKey.pullRequestDaysWindow);
+    var pullRequestDaysWindowInt: number | null;
+    if (typeof pullRequestDaysWindow === 'string') {
+      pullRequestDaysWindowInt = parseInt(pullRequestDaysWindow)
+    } else {
+      pullRequestDaysWindowInt = null
+    }
+    this.form.controls.pullRequestDaysWindow.setValue(pullRequestDaysWindowInt)
   }
 }

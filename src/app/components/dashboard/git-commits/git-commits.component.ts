@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { PullRequestsStore } from '../../../stores/pull-requests.store.service';
 import { CommitsStore } from '../../../stores/commits.store.service';
-import { AppStore } from '../../../stores/app.store.service';
+import { AppStore, QueryParamKey } from '../../../stores/app.store.service';
 import { InputsService } from '../../../services/inputs.service';
 import { MatInputModule } from '@angular/material/input';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -23,6 +23,8 @@ import { BitbucketService } from '../../../services/bitbucket.service';
   templateUrl: 'git-commits.component.html',
 })
 export class GitCommitsComponent {
+  QueryParamKey = QueryParamKey
+
   constructor(
     protected pullRequestsStore: PullRequestsStore,
     protected commitsStore: CommitsStore,

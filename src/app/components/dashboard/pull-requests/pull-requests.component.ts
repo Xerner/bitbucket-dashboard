@@ -20,7 +20,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { BitbucketService } from '../../../services/bitbucket.service';
 
 @Component({
-  selector: 'app-pull-request-table',
+  selector: 'app-pull-requests',
   standalone: true,
   imports: [
     CommonModule,
@@ -33,22 +33,29 @@ import { BitbucketService } from '../../../services/bitbucket.service';
     MatProgressBarModule,
     MatButtonModule,
   ],
-  templateUrl: 'pull-request-table.component.html',
+  templateUrl: 'pull-requests.component.html',
 })
-export class PullRequestTableComponent {
+export class PullRequestsComponent {
   @ViewChild(MatTable)
   table!: MatTable<PullRequest>;
   @ViewChild('filterInput', { static: true })
   filterInput!: ElementRef<HTMLInputElement>;
   isTyping = signal<boolean>(false);
-
-  pullRequestsCount = computed(() => {
+  allPullRequestsCount = computed(() => {
     var pullRequests = this.pullRequestsStore.pullRequests()
     if (pullRequests == null) {
       return 0;
     }
     return pullRequests.length;
   })
+  openPullRequestsCount = computed(() => {
+    var pullRequests = this.pullRequestsStore.openPullRequests()
+    if (pullRequests == null) {
+      return 0;
+    }
+    return pullRequests.length;
+  })
+
   constructor(
     protected dashboardService: DashboardService,
     protected pullRequestsStore: PullRequestsStore,

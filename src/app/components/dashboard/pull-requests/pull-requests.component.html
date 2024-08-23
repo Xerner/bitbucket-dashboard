@@ -1,6 +1,15 @@
+<!-- Inputs -->
 <div class="p-3 pb-0">
   <div class="font-medium font-xl mb-3">Pull Request Inputs</div>
-  <div class="grid grid-cols-2 gap-3 w-full">
+  <div class="grid grid-cols-3 gap-3 w-full">
+    <mat-form-field>
+      <mat-label>Time Window (Days)</mat-label>
+      <input
+        matInput
+        type="number"
+        [formControl]="inputsService.form.controls.pullRequestDaysWindow"
+      />
+    </mat-form-field>
     <mat-form-field>
       <mat-label>Last Updated Threshold</mat-label>
       <input
@@ -20,19 +29,56 @@
   </div>
 </div>
 
+<!-- Open Pull Requests -->
+<div class="grid grid-cols-2 border-b">
+  <div class="font-medium font-2xl p-3">All Pull Requests</div>
+  <div
+    [ngClass]="{
+      'text-right p-3': true,
+      'italic text-slate-400': allPullRequestsCount() == 0
+    }"
+  >
+    {{ allPullRequestsCount() + " pull requests" }}
+  </div>
+</div>
+
+<!-- All Pull Requests -->
+<div class="flex flex-col gap-6 p-3">
+  <canvas
+    baseChart
+    [data]="pullRequestsStore.getSubmittedByAuthorChartData()"
+    [options]="
+      pullRequestsStore.getOptions(
+        'Submitted Pull Requests By Author',
+        'Author',
+        'Number Of Pull Requests'
+      )
+    "
+  ></canvas>
+  <canvas
+    baseChart
+    [data]="pullRequestsStore.getParticipatedByAuthorChartData()"
+    [options]="
+      pullRequestsStore.getOptions(
+        'Participated On Pull Requests By Author',
+        'Author',
+        'Number Of Pull Requests'
+      )
+    "
+  ></canvas>
+</div>
+
+
+<!-- Open Pull Requests -->
 <div class="grid grid-cols-2 border-b">
   <div class="font-medium font-2xl p-3">Open Pull Requests</div>
   <div
     [ngClass]="{
       'text-right p-3': true,
-      'italic text-slate-400': pullRequestsCount() == 0
+      'italic text-slate-400': openPullRequestsCount() == 0
     }"
   >
-    {{
-      pullRequestsCount() == 0
-        ? "No pull requests"
-        : pullRequestsCount() + " pull requests"
-    }}
+    {{ openPullRequestsCount() + " pull requests" }}
   </div>
 </div>
 
@@ -87,6 +133,15 @@
     <td mat-cell *matCellDef="let keysResult">
       <span
         [innerHTML]="getHighlight(keysResult, 'destination.repository.name')"
+      ></span>
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="author.display_name">
+    <th mat-header-cell mat-sort-header *matHeaderCellDef>Author</th>
+    <td mat-cell *matCellDef="let keysResult">
+      <span
+        [innerHTML]="getHighlight(keysResult, 'author.display_name')"
       ></span>
     </td>
   </ng-container>

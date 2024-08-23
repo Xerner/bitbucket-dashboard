@@ -14,7 +14,7 @@ export class CommitsStore {
   authorsCommits = computed(this.getAuthorsCommits.bind(this))
 
   getAuthorsCommits(): any {
-    var authorAliasesJson = this.appStore.queryParams[QueryParamKey.author_aliases]();
+    var authorAliasesJson = this.appStore.author_aliases();
     var authorAliases = authorAliasesJson ? JSON.parse(authorAliasesJson) as AuthorAlias[] : [];
     var commits = this.commits();
     var authorsCommits: [string, Commit[]][] = []
