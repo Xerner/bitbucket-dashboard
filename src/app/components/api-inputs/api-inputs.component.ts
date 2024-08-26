@@ -8,11 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { AppStore, QueryParamKey } from '../../stores/app.store.service';
 import { BitbucketAPI } from '../../services/bitbucket-api.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { PullRequestsStore as PullRequestsStore } from '../../stores/pull-requests.store.service';
-import { PullRequest } from '../../models/PullRequest';
-import { concatMap, map, mergeAll, share } from 'rxjs';
-import { Commit } from '../../models/Commit';
-import { CommitsStore } from '../../stores/commits.store.service';
+import { share } from 'rxjs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { InputsService } from '../../services/inputs.service';
 import { BitbucketService } from '../../services/bitbucket.service';
@@ -34,8 +30,6 @@ import { BitbucketService } from '../../services/bitbucket.service';
 export class ApiInputsComponent {
   constructor(
     protected appStore: AppStore,
-    private pullRequestsStore: PullRequestsStore,
-    private commitsStore: CommitsStore,
     protected inputsService: InputsService,
     private bitbucketApi: BitbucketAPI,
     private bitbucketService: BitbucketService,

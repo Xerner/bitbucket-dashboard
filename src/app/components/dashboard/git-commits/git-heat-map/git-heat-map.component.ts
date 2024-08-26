@@ -46,8 +46,9 @@ export class GitHeatMapComponent {
   readonly ROWS = 7;
   readonly LUXON_SATURDAY: WeekdayNumbers = 6;
   readonly LUXON_SUNDAY: WeekdayNumbers = 7;
+  readonly MIN_GREEN = 64;
+  readonly MAX_GREEN = 196;
 
-  middleLightness = 25;
   largestCount = 0;
   daysWindow = input.required<number>()
   author = input.required<string>()
@@ -109,15 +110,16 @@ export class GitHeatMapComponent {
       style += " background-color: rgb(196, 196, 196);"
       return style;
     }
-    var lightness = this.getLightness(commitCount.count);
-    style += ` background-color: hsl(120, 100%, ${lightness}%);` // this be green rgb(0, 128, 0)
+    var greenness = this.getGreenness(commitCount.count);
+    style += ` background-color: rgb(0, ${greenness}, 0);`
     return style;
   }
 
-  getLightness(count: number) {
-    var normalizedValue = (this.largestCount - count) / (this.largestCount / 2);
-    normalizedValue = normalizedValue == 0 ? 1 : normalizedValue;
-    return normalizedValue * this.middleLightness;
+  getGreenness(count: number) {
+    var greenRange = this.MAX_GREEN - this.MIN_GREEN;
+    var normalizedValue = (count / this.largestCount) * greenRange;
+    normalizedValue += this.MIN_GREEN;
+    return normalizedValue;
   }
 
   isCommitDateEqualToDateTime(commit: Commit, datetime: DateTime) {

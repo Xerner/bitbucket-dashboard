@@ -4,8 +4,7 @@
 >
   {{ author() }}
 </div>
-<div class="flex">
-  <div class="grow"></div>
+<div class="flex justify-end">
   <div class="grid gap-1" [style]="getColumnContainerStyle()">
     @for (weekCounts of commitCounts(); track $index) {
       <div class="grid grid-cols-1" [style]="getRowContainerStyle()">

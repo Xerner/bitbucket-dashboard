@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AppStore, QueryParamKey } from '../stores/app.store.service';
 import { ActivatedRoute, ParamMap } from '@angular/router';
+import { debounceTime } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -24,9 +25,17 @@ export class InputsService {
   ) {
     this.route.queryParamMap.subscribe(this.parseQueryParams.bind(this))
     Object.keys(this.form.controls).forEach((key) => {
+      if (!QueryParamKey.hasOwnProperty(key)) {
+        return;
+      }
       var control = this.form.controls[key as keyof typeof this.form.controls];
       this.subscribeToValueChanges(control);
     })
+    this.form.controls.author_aliases.valueChanges.pipe(
+      debounceTime(500)
+    ).subscribe(value => {
+      this.appStore.author_aliases.set(value);
+    });
   }
 
   subscribeToValueChanges(control: FormControl) {
@@ -36,7 +45,9 @@ export class InputsService {
       this.appStore.updateStoredQueryParam(name, queryParam);
       this.updateControlValue(control, queryParam);
     })
-    control.valueChanges.subscribe(value => {
+    control.valueChanges.pipe(
+      debounceTime(500)
+    ).subscribe(value => {
       this.appStore.updateStoredQueryParam(name, value);
       this.appStore.updateQueryParam(name, value);
     });
