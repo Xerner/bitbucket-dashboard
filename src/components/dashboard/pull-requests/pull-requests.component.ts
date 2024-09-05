@@ -3,7 +3,7 @@ import { Component, computed, ElementRef, SecurityContext, signal, ViewChild } f
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSortModule, Sort } from '@angular/material/sort';
-import { MatTable, MatTableModule } from '@angular/material/table';
+import { MatTableModule } from '@angular/material/table';
 import { deepClone } from '../../../library/deep-clone';
 import { PullRequest } from '../../../models/PullRequest';
 import { DashboardService } from '../../../services/dashboard.service';
@@ -17,7 +17,8 @@ import { InputsService } from '../../../services/inputs.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { BaseChartDirective } from 'ng2-charts';
 import { MatButtonModule } from '@angular/material/button';
-import { BitbucketService } from '../../../services/bitbucket.service';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-pull-requests',
@@ -32,12 +33,12 @@ import { BitbucketService } from '../../../services/bitbucket.service';
     BaseChartDirective,
     MatProgressBarModule,
     MatButtonModule,
+    MatExpansionModule,
+    MatIconModule,
   ],
   templateUrl: 'pull-requests.component.html',
 })
 export class PullRequestsComponent {
-  @ViewChild(MatTable)
-  table!: MatTable<PullRequest>;
   @ViewChild('filterInput', { static: true })
   filterInput!: ElementRef<HTMLInputElement>;
   isTyping = signal<boolean>(false);
@@ -63,7 +64,6 @@ export class PullRequestsComponent {
     private domSanitizer: DomSanitizer,
     protected inputsService: InputsService,
     protected appStore: AppStore,
-    private bitbucketService: BitbucketService,
   ) {}
 
   ngOnInit(): void {
@@ -94,9 +94,5 @@ export class PullRequestsComponent {
 
   getHighlight(keysResult: Fuzzysort.KeysResult<PullRequest>, column: string): string {
     return this.domSanitizer.sanitize(SecurityContext.HTML, this.pullRequestService.getHighlight(keysResult, column)) ?? ""
-  }
-
-  onFetchClicked() {
-    this.bitbucketService.getPullRequests();
   }
 }

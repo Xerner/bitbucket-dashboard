@@ -1,13 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatIconModule } from '@angular/material/icon';
 import { AppStore, QueryParamKey } from '../../stores/app.store.service';
 import { BitbucketAPI } from '../../services/bitbucket-api.service';
-import { HttpErrorResponse } from '@angular/common/http';
 import { share } from 'rxjs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { InputsService } from '../../services/inputs.service';
@@ -21,13 +18,14 @@ import { BitbucketService } from '../../services/bitbucket.service';
     ReactiveFormsModule,
     MatInputModule,
     MatButtonModule,
-    MatProgressBarModule,
-    MatIconModule,
-    MatTooltipModule
+    MatTooltipModule,
   ],
   templateUrl: "api-inputs.component.html",
 })
 export class ApiInputsComponent {
+  @ViewChild('filterInput', { static: true })
+  filterInput!: ElementRef<HTMLInputElement>;
+
   constructor(
     protected appStore: AppStore,
     protected inputsService: InputsService,
@@ -44,7 +42,11 @@ export class ApiInputsComponent {
     this.bitbucketService.getCommitsFromRepositories(repositoriesSharedObservable);
   }
 
-  errorToString(httpErrorResponse: HttpErrorResponse): string {
-    return httpErrorResponse.error.error.message
+  onFetchPullRequestsClicked() {
+    this.bitbucketService.getPullRequests();
+  }
+
+  onFetchCommitsClicked() {
+    this.bitbucketService.getCommits();
   }
 }

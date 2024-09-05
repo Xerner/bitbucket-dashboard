@@ -8,7 +8,6 @@ import { MatInputModule } from '@angular/material/input';
 import { ReactiveFormsModule } from '@angular/forms';
 import { GitHeatMapComponent } from './git-heat-map/git-heat-map.component';
 import { MatButtonModule } from '@angular/material/button';
-import { BitbucketService } from '../../../services/bitbucket.service';
 
 @Component({
   selector: 'app-git-commits',
@@ -30,10 +29,5 @@ export class GitCommitsComponent {
     protected commitsStore: CommitsStore,
     protected appStore: AppStore,
     protected inputsService: InputsService,
-    private bitbucketService: BitbucketService,
   ) { }
-
-  onFetchClicked() {
-    this.bitbucketService.getCommits();
-  }
 }

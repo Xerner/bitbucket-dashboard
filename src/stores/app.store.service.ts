@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { computed, Injectable, signal, WritableSignal } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { aliases } from '../../settings/aliases';
+import { aliases } from '../settings/aliases';
 
 export type QueryParamKeyType = QueryParamKey | string;
 export enum QueryParamKey {
