@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
-import { share, concatMap, mergeAll, map, Observable } from 'rxjs';
-import { PullRequest } from '../models/PullRequest';
+import { concatMap, mergeAll, map, Observable } from 'rxjs';
+import { PullRequest } from '../models/bitbucket/PullRequest';
 import { AppStore, QueryParamKey } from '../stores/app.store.service';
 import { BitbucketAPI } from './bitbucket-api.service';
 import { PullRequestsStore } from '../stores/pull-requests.store.service';
-import { BitbucketRepository } from '../models/BitbucketRepository';
-import { Commit } from '../models/Commit';
+import { BitbucketRepository } from '../models/bitbucket/BitbucketRepository';
+import { Commit } from '../models/bitbucket/Commit';
 import { CommitsStore } from '../stores/commits.store.service';
+import { Project } from '../models/bitbucket/Project';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +19,26 @@ export class BitbucketService {
     private pullRequestsStore: PullRequestsStore,
     private commitsStore: CommitsStore,
   ) { }
+
+  getProjects(workspace: string) {
+    var projectsObservable = this.bitbucketAPI.getProjects(workspace)
+    var allProjects: Project[] = [];
+    this.appStore.itemsLoading.set(this.appStore.itemsLoading() + 1);
+    // fetch pull requests
+    projectsObservable.subscribe({
+      next: (projects) => {
+        allProjects = allProjects.concat(projects)
+      },
+      error: (error) => {
+        this.appStore.addError('fetching projects', error)
+      },
+      complete: () => {
+        this.appStore.removeError('fetching projects')
+        this.appStore.itemsLoading.set(this.appStore.itemsLoading() - 1);
+        this.appStore.projects.set(allProjects);
+      }
+    })
+  }
 
   getPullRequestsFromRepositories(reposObservable: Observable<BitbucketRepository[]>) {
     var allPullRequests: PullRequest[] = [];

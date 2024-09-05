@@ -3,6 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AppStore, QueryParamKey } from '../stores/app.store.service';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { debounceTime } from 'rxjs';
+import { BitbucketService } from './bitbucket.service';
 
 @Injectable({
   providedIn: 'root'
@@ -22,6 +23,7 @@ export class InputsService {
   constructor(
     private appStore: AppStore,
     private route: ActivatedRoute,
+    private bitbucketService: BitbucketService,
   ) {
     this.route.queryParamMap.subscribe(this.parseQueryParams.bind(this))
     Object.keys(this.form.controls).forEach((key) => {
@@ -50,6 +52,9 @@ export class InputsService {
     ).subscribe(value => {
       this.appStore.updateStoredQueryParam(name, value);
       this.appStore.updateQueryParam(name, value);
+      if (name === QueryParamKey.workspace) {
+        this.bitbucketService.getProjects(value);
+      }
     });
   }
 

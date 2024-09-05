@@ -1,4 +1,4 @@
-import { User } from "./User";
+import { User } from "./bitbucket/User";
 
 export interface Author {
   raw: string;

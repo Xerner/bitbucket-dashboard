@@ -2,6 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { computed, Injectable, signal, WritableSignal } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { aliases } from '../settings/aliases';
+import { Project } from '../models/bitbucket/Project';
 
 export type QueryParamKeyType = QueryParamKey | string;
 export enum QueryParamKey {
@@ -19,6 +20,7 @@ export enum QueryParamKey {
 export class AppStore {
   requestCounterWarningThreshold = 500;
   httpErrors = signal<[string, HttpErrorResponse][] | null>(null);
+  projects = signal<Project[]>([])
 
   addError(source: string, error: HttpErrorResponse) {
     var errors = this.httpErrors();

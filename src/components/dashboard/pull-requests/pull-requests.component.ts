@@ -5,7 +5,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { deepClone } from '../../../library/deep-clone';
-import { PullRequest } from '../../../models/PullRequest';
+import { PullRequest } from '../../../models/bitbucket/PullRequest';
 import { DashboardService } from '../../../services/dashboard.service';
 import { AppStore } from '../../../stores/app.store.service';
 import { PullRequestsStore } from '../../../stores/pull-requests.store.service';

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, signal, ViewChild } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,6 +9,8 @@ import { share } from 'rxjs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { InputsService } from '../../services/inputs.service';
 import { BitbucketService } from '../../services/bitbucket.service';
+import { MatSelectModule } from '@angular/material/select';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @Component({
   selector: 'app-api-inputs',
@@ -19,12 +21,15 @@ import { BitbucketService } from '../../services/bitbucket.service';
     MatInputModule,
     MatButtonModule,
     MatTooltipModule,
+    MatSelectModule,
+    MatProgressBarModule,
   ],
   templateUrl: "api-inputs.component.html",
 })
 export class ApiInputsComponent {
   @ViewChild('filterInput', { static: true })
   filterInput!: ElementRef<HTMLInputElement>;
+  isLoadingProjects = signal<boolean>(false);
 
   constructor(
     protected appStore: AppStore,

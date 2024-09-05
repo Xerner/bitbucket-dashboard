@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { SortDirection } from '@angular/material/sort';
-import { PullRequest } from '../models/PullRequest';
+import { PullRequest } from '../models/bitbucket/PullRequest';
 import { DashboardService } from './dashboard.service';
 import fuzzysort from 'fuzzysort';
 import { getProperty } from '../library/get-property';

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, input } from '@angular/core';
-import { Commit } from '../../../../models/Commit';
+import { Commit } from '../../../../models/bitbucket/Commit';
 import { DateTime, WeekdayNumbers } from 'luxon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 

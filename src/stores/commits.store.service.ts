@@ -1,5 +1,5 @@
 import { computed, Injectable, signal } from "@angular/core";
-import { Commit } from "../models/Commit";
+import { Commit } from "../models/bitbucket/Commit";
 import { AppStore, QueryParamKey } from "./app.store.service";
 import { AuthorAlias } from "../models/AuthorAliases";
 import { Author } from "../models/Author";

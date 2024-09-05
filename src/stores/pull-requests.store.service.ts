@@ -1,7 +1,7 @@
 import { computed, Injectable, signal } from '@angular/core';
 import { ChartData, ChartOptions, ChartTypeRegistry } from 'chart.js';
 import { DashboardService } from '../services/dashboard.service';
-import { PullRequest } from '../models/PullRequest';
+import { PullRequest } from '../models/bitbucket/PullRequest';
 import { PullRequestsService } from '../services/pull-requests.service';
 import { PULL_REQUEST_STATES } from '../services/bitbucket-api.service';
 

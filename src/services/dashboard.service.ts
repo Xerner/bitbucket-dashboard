@@ -3,7 +3,6 @@ import { SortDirection } from '@angular/material/sort';
 import { ChartData, ChartTypeRegistry } from 'chart.js';
 import { DateTime } from 'luxon';
 import { AppStore } from '../stores/app.store.service';
-import { PullRequest } from '../models/PullRequest';
 
 @Injectable({
   providedIn: 'root'

@@ -1,12 +1,13 @@
-  import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
+import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { AppStore, QueryParamKey } from "../stores/app.store.service";
 import { from, map, Observable } from "rxjs";
-import { BitbucketApiResponse } from "../models/BitbucketApiResponse";
-import { PullRequest } from "../models/PullRequest";
-import { BitbucketRepository } from "../models/BitbucketRepository";
-import { Commit } from "../models/Commit";
+import { BitbucketApiResponse } from "../models/bitbucket/BitbucketApiResponse";
+import { BitbucketRepository } from "../models/bitbucket/BitbucketRepository";
 import { DateTime } from "luxon";
+import { Project } from "../models/bitbucket/Project";
+import { Commit } from "../models/bitbucket/Commit";
+import { PullRequest } from "../models/bitbucket/PullRequest";
 
 export enum PULL_REQUEST_STATES {
   OPEN = "OPEN",
@@ -63,6 +64,19 @@ export class BitbucketAPI {
     });
   }
 
+  //#region REST endpoints
+
+  getProjects(workspace: string) {
+    return this.getAllPages(
+      this.http.get<BitbucketApiResponse<Project>>(
+        `https://api.bitbucket.org/2.0/workspaces/${workspace}/projects`,
+        {
+          headers: this.getHeaders(this.appStore.queryParams['access_token']())
+        }
+      )
+    )
+  }
+
   // https://developer.atlassian.com/cloud/bitbucket/rest/api-group-pullrequests/#api-repositories-workspace-repo-slug-pullrequests-get
   getPullRequests(repository: string) {
     var states = Object.values(PULL_REQUEST_STATES).map(state => "state=" + state)
@@ -89,7 +103,7 @@ export class BitbucketAPI {
       this.http.get<BitbucketApiResponse<BitbucketRepository>>(
         `${this.REPOSITORIES_URL}/${this.appStore.queryParams['workspace']()}`,
         { params: queryParams, headers: this.getHeaders(this.appStore.queryParams['access_token']()) })
-    , null, queryParams)
+      , null, queryParams)
   }
 
   getCommits(repository: string) {
@@ -107,6 +121,10 @@ export class BitbucketAPI {
       (this.allAreInsideDateWindow<Commit>).bind(this, dateForQuery, this.isCommitInsideDateWindow)
     ).pipe(map((commits) => commits.filter(commit => this.isCommitInsideDateWindow(commit, dateForQuery!))))
   }
+
+  //#endregion
+
+  //#region helpers
 
   allAreInsideDateWindow<T>(dateWindow: DateTime, checker: (item: T, datewindow: DateTime) => boolean, items: T[]) {
     var allCommitsAreInsideDateWindow = items.every(item => checker(item, dateWindow));
@@ -138,4 +156,6 @@ export class BitbucketAPI {
     }
     return DateTime.now().toUTC().startOf('day').minus({ 'days': daysWindow - 1 });
   }
+
+  //#endregion
 }
