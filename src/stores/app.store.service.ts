@@ -1,7 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { computed, Injectable, signal, WritableSignal } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { aliases } from '../settings/aliases';
 import { Project } from '../models/bitbucket/Project';
 
 export type QueryParamKeyType = QueryParamKey | string;
@@ -19,8 +18,24 @@ export enum QueryParamKey {
 })
 export class AppStore {
   requestCounterWarningThreshold = 500;
-  httpErrors = signal<[string, HttpErrorResponse][] | null>(null);
+  httpErrors = signal<[string, HttpErrorResponse][]>([]);
   projects = signal<Project[]>([])
+  queryParams: { [key: QueryParamKeyType]: WritableSignal<any> } = {
+    [QueryParamKey.overdueThreshold]: signal<number | null>(null),
+    [QueryParamKey.commitDaysWindow]: signal<number | null>(null),
+    [QueryParamKey.pullRequestDaysWindow]: signal<number | null>(null),
+    [QueryParamKey.workspace]: signal<string | null>(""),
+    [QueryParamKey.project]: signal<string | null>(""),
+    [QueryParamKey.access_token]: signal<string | null>(""),
+  }
+  itemsLoading = signal<number>(0);
+  isLoading = computed<boolean>(() => this.itemsLoading() != 0);
+  requestCounter = signal<number>(0);
+
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
 
   addError(source: string, error: HttpErrorResponse) {
     var errors = this.httpErrors();
@@ -38,24 +53,6 @@ export class AppStore {
     }
     this.httpErrors.set(errors.filter(errors => errors[0] != source))
   }
-
-  queryParams: { [key: QueryParamKeyType]: WritableSignal<any> } = {
-    [QueryParamKey.overdueThreshold]: signal<number | null>(null),
-    [QueryParamKey.commitDaysWindow]: signal<number | null>(null),
-    [QueryParamKey.pullRequestDaysWindow]: signal<number | null>(null),
-    [QueryParamKey.workspace]: signal<string | null>(""),
-    [QueryParamKey.project]: signal<string | null>(""),
-    [QueryParamKey.access_token]: signal<string | null>(""),
-  }
-  author_aliases = signal<string | null>(JSON.stringify(aliases));
-  itemsLoading = signal<number>(0);
-  isLoading = computed<boolean>(() => this.itemsLoading() != 0);
-  requestCounter = signal<number>(0);
-
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute
-  ) {}
 
   updateStoredQueryParam(name: QueryParamKeyType, value: any) {
     if (value != this.queryParams[name]()) {

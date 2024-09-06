@@ -8,7 +8,7 @@
 
   <mat-form-field>
     <mat-label>Project</mat-label>
-    <mat-select>
+    <mat-select [formControl]="inputsService.form.controls.project">
       @for (project of appStore.projects(); track $index) {
       <mat-option [value]="project.name">{{ project.name }}</mat-option>
       }
@@ -91,15 +91,17 @@
       [formControl]="inputsService.form.controls.commitDaysWindow"
     />
   </mat-form-field>
+  <div></div>
+  <div></div>
 
-  <mat-form-field class="col-span-2">
-    <mat-label>Username Aliases</mat-label>
+  <!-- <mat-form-field class="col-span-2">
+    <mat-label>Username Aliases File</mat-label>
     <input
       matInput
-      [formControl]="inputsService.form.controls.author_aliases"
+      [formControl]="inputsService.form.controls.personnel"
       placeholder="[{ name: 'john', aliases: ['johnny'] }]"
     />
-  </mat-form-field>
+  </mat-form-field> -->
 
   <button
     mat-raised-button
@@ -109,4 +111,31 @@
   >
     Fetch Commits
   </button>
+</div>
+
+<!-- Personnel -->
+<div class="font-medium font-xl mb-3">Personnel</div>
+<div class="grid grid-cols-4 gap-3">
+  <app-file-input
+    [formControl]="inputsService.form.controls.personnel"
+    label="Upload Personnel File"
+    icon="attach_file"
+    class="col-span-3"
+  ></app-file-input>
+  <button mat-raised-button class="mt-2">Get Personnel JSON</button>
+
+  <mat-form-field class="w-full col-span-3">
+    <mat-label>Select Personnel To Show</mat-label>
+    <mat-select [formControl]="inputsService.form.controls.anonymity" multiple>
+      @for (person of personnelStore.personnel(); track $index) {
+      <mat-option [value]="person">{{ person.name }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-checkbox
+    [formControl]="inputsService.form.controls.isAnonymityEnabled"
+    class="mt-2"
+    >Is Anonymous</mat-checkbox
+  >
 </div>

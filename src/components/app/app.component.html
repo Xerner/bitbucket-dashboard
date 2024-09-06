@@ -24,13 +24,20 @@
       mode="query"
       class="!bg-gradient-to-r from-blue-600 to-purple-600"
     ></mat-progress-bar>
-    } @if (appStore.httpErrors()) {
+    } @if (appStore.httpErrors().length > 0) {
     <div class="flex flex-col gap-3 p-3 bg-red-200 divide-y">
       @for (error of appStore.httpErrors(); track $index) {
-      <div>
-        <div>Error at {{ error[0] }}</div>
+      <div class="flex justify-between gap-3">
         <div>
-          {{ errorToString(error[1]) }}
+          <div>Error at {{ error[0] }}</div>
+          <div>
+            {{ errorToString(error[1]) }}
+          </div>
+        </div>
+        <div>
+          <button mat-icon-button (click)="appStore.removeError(error[0])">
+            <mat-icon>close</mat-icon>
+          </button>
         </div>
       </div>
       }
@@ -45,7 +52,7 @@
       class="overflow-y-scroll xl:border-r xl:border-t-0 lg:border-r-0 lg:border-t border-slate-500"
     ></app-pull-requests>
     <app-git-commits
-      class="flex flex-col gap-3 bg-slate-100 p-3 overflow-y-scroll xl:order-last lg:order-first"
+      class="flex flex-col gap-3 p-3 overflow-y-scroll xl:order-last lg:order-first"
     ></app-git-commits>
   </div>
 </div>

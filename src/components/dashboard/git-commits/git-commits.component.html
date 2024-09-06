@@ -5,7 +5,13 @@
     [daysWindow]="appStore.queryParams[QueryParamKey.commitDaysWindow]()"
     [author]="authorCommits[0]"
     [commits]="authorCommits[1]"
-    class="border border-slate-300 rounded bg-slate-200 p-2 min-w-[132px]"
+    [isAnonymous]="anonymityService.isAnonymous(authorCommits[0])"
+    [ngClass]="{
+      'border rounded p-2 min-w-[132px]': true,
+      'bg-slate-200 border-slate-300': anonymityService.isAnonymityEnabled() && !anonymityService.isCompletelyAnonymous() && anonymityService.isAnonymous(authorCommits[0]) === true,
+      'bg-green-50 border-green-300': anonymityService.isAnonymityEnabled() && !anonymityService.isCompletelyAnonymous() && anonymityService.isAnonymous(authorCommits[0]) === false,
+      'bg-slate-50 border-slate-300': !anonymityService.isAnonymityEnabled() || anonymityService.isCompletelyAnonymous(),
+    }"
   ></app-git-heat-map>
   }
 </div>

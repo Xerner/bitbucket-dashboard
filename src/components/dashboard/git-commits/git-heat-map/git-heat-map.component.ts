@@ -3,6 +3,7 @@ import { Component, computed, input } from '@angular/core';
 import { Commit } from '../../../../models/bitbucket/Commit';
 import { DateTime, WeekdayNumbers } from 'luxon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { Person } from '../../../../models/Personnel';
 
 export const LuxonToHeatMapWeekdays: Record<number, number> = {
   1: 2, // 1 is Monday in Luxon
@@ -23,7 +24,6 @@ export const LuxonWeekdaysToString: Record<number, string> = {
   6: "Saturday",
   7: "Sunday", // 7 is Sunday in Luxon
 }
-
 
 interface CommitCount {
   date: DateTime;
@@ -51,8 +51,9 @@ export class GitHeatMapComponent {
 
   largestCount = 0;
   daysWindow = input.required<number>()
-  author = input.required<string>()
+  author = input.required<Person>()
   commits = input.required<Commit[]>()
+  isAnonymous = input<boolean>();
   commitCounts = computed<CommitCount[][]>(() => {
     var commits = this.commits();
     var startDate = this.startDate();
@@ -161,5 +162,9 @@ export class GitHeatMapComponent {
     var dateStr = commitCount.date.toLocaleString()
     return `${weekday}
 ${commitCount.count} commit(s) on ${dateStr}`
+  }
+
+  getAuthor(): string {
+    return this.isAnonymous() ? "Anonymous" : this.author().name;
   }
 }

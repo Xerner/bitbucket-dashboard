@@ -4,6 +4,9 @@ import { DashboardService } from '../services/dashboard.service';
 import { PullRequest } from '../models/bitbucket/PullRequest';
 import { PullRequestsService } from '../services/pull-requests.service';
 import { PULL_REQUEST_STATES } from '../services/bitbucket-api.service';
+import { PersonnelStore } from './personnel.store.service';
+import { Person } from '../models/Personnel';
+import { AnonymityService } from '../services/AnonymityService.service';
 
 @Injectable({
   providedIn: 'root'
@@ -34,7 +37,9 @@ export class PullRequestsStore {
 
   constructor(
     private dashboardService: DashboardService,
-    private pullRequestService: PullRequestsService
+    private pullRequestService: PullRequestsService,
+    private personnelStore: PersonnelStore,
+    private anonymityService: AnonymityService,
   ) { }
 
   getOptions(chartTitle: string, xAxisTitle: string, yAxisTitle: string): ChartOptions<keyof ChartTypeRegistry> {
@@ -132,15 +137,15 @@ export class PullRequestsStore {
   getSubmittedByAuthorChartData() {
     var data = this.pullRequests();
     var chartDataset = this.dashboardService.getChartDataTemplate<number>("Count");
-    if (data == null) {
+    if (data == null || data.length == 0) {
       return chartDataset;
     }
-    var authorCounts: [string, number][] = []
+    var authorCounts: [Person, number][] = []
     data.forEach(pullRequest => {
-      var author = pullRequest.author.display_name
-      var count = authorCounts.find(ageCount_ => ageCount_[0] == author)
+      var person = this.personnelStore.getPersonByName(pullRequest.author.display_name);
+      var count = authorCounts.find(ageCount_ => ageCount_[0] == person)
       if (count == undefined) {
-        count = [author, 0]
+        count = [person, 0]
         authorCounts.push(count);
       }
       count[1]++;
@@ -148,7 +153,7 @@ export class PullRequestsStore {
     })
     authorCounts.sort((count1, count2) => count1[1] > count2[1] ? -1 : 1);
     chartDataset.datasets[0].data = authorCounts.map(authorCount => authorCount[1]);
-    chartDataset.labels = authorCounts.map(authorCount => authorCount[0]);
+    chartDataset.labels = authorCounts.map(authorCount => this.anonymityService.isAnonymous(authorCount[0]) ? "Anon" : authorCount[0].name);
     return chartDataset;
   }
 
@@ -156,19 +161,20 @@ export class PullRequestsStore {
     var data = this.pullRequests();
     var chartDataset = this.dashboardService.getChartDataTemplate<number>("Count");
 
-    if (data == null) {
+    if (data == null || data.length == 0) {
       return chartDataset;
     }
-    var participationCounts: [string, number][] = []
+    var participationCounts: [Person, number][] = []
     data.forEach(pullRequest => {
-      var author = pullRequest.author.display_name
+      var person = this.personnelStore.getPersonByName(pullRequest.author.display_name);
       pullRequest.participants.forEach(participant => {
-        if (author == participant.user.display_name) {
+        var participantPerson = this.personnelStore.getPersonByName(participant.user.display_name);
+        if (person == participantPerson) {
           return;
         }
-        var count = participationCounts.find(count_ => count_[0] == participant.user.display_name)
+        var count = participationCounts.find(count_ => count_[0] == participantPerson)
         if (count == undefined) {
-          count = [participant.user.display_name, 0]
+          count = [participantPerson, 0]
           participationCounts.push(count);
         }
         if (participant.participated_on != null) {
@@ -180,16 +186,16 @@ export class PullRequestsStore {
     var expectedParticipation = Math.floor(data.length / participationCounts.length) * 2;
     var expectedParticipationChartData = participationCounts.map(_ => expectedParticipation);
     chartDataset.datasets.push({
-            type: 'line',
-            label: 'Expected Participation = (# of PRs / participants) * 2',
-            data: expectedParticipationChartData,
-            fill: false,
-            pointStyle: false,
-            borderColor: 'rgba(196, 64, 64, 0.8)'
+      type: 'line',
+      label: 'Expected Participation = (# of PRs / participants) * 2',
+      data: expectedParticipationChartData,
+      fill: false,
+      pointStyle: false,
+      borderColor: 'rgba(196, 64, 64, 0.8)'
     });
     chartDataset.datasets[0].data = participationCounts.map(count => count[1]);
     chartDataset.datasets[0].backgroundColor = 'rgba(196, 64, 196, 0.6)';
-    chartDataset.labels = participationCounts.map(count => count[0]);
+    chartDataset.labels = participationCounts.map(participationCount => this.anonymityService.isAnonymous(participationCount[0]) ? "Anon" : participationCount[0].name);
     return chartDataset;
   }
 }

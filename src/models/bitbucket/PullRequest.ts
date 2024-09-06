@@ -1,4 +1,5 @@
 import { BitbucketRepository } from "./BitbucketRepository";
+import { User } from "./User";
 
 export interface PullRequest {
   "comment_count": number,
@@ -11,24 +12,7 @@ export interface PullRequest {
   "merge_commit": string | null,
   "close_source_branch": boolean,
   "closed_by": string | null,
-  "author": {
-    "display_name": string,
-    "links": {
-      "self": {
-        "href": string
-      },
-      "avatar": {
-        "href": string
-      },
-      "html": {
-        "href": string
-      }
-    },
-    "type": string,
-    "uuid": string,
-    "account_id": string,
-    "nickname": string
-  },
+  "author": User,
   "reason": string,
   "created_on": string,
   "updated_on": string,
@@ -88,9 +72,7 @@ export interface PullRequest {
   "participants":
   {
     "type": string,
-    "user": {
-      "display_name": string,
-    }
+    "user": User
     "role": string,
     "approved": boolean,
     "state": string | null,

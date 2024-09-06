@@ -1,0 +1,11 @@
+<canvas
+  baseChart
+  [data]="pullRequestsStore.getParticipatedByAuthorChartData()"
+  [options]="
+    pullRequestsStore.getOptions(
+      'Participated On Pull Requests By Participant',
+      'Participant',
+      'Number Of Pull Requests'
+    )
+  "
+></canvas>

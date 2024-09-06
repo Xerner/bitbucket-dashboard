@@ -1,0 +1,81 @@
+
+<mat-form-field class="p-3 w-full">
+  <mat-label>Filter</mat-label>
+  <input matInput #filterInput placeholder="Ex. Operations" />
+</mat-form-field>
+
+@if (isTyping()) {
+<mat-progress-bar mode="query"></mat-progress-bar>
+}
+
+<table
+  mat-table
+  matSort
+  [dataSource]="pullRequestsStore.filteredPullRequests() ?? []"
+  (matSortChange)="sortPullRequests($event)"
+>
+  <ng-container matColumnDef="destination.repository.name">
+    <th mat-header-cell mat-sort-header *matHeaderCellDef>Repository</th>
+    <td mat-cell *matCellDef="let keysResult">
+      <span
+        [innerHTML]="getHighlight(keysResult, 'destination.repository.name')"
+      ></span>
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="author.display_name">
+    <th mat-header-cell mat-sort-header *matHeaderCellDef>Author</th>
+    <td mat-cell *matCellDef="let keysResult">
+      <span
+        [innerHTML]="getHighlight(keysResult, 'author.display_name')"
+      ></span>
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="title">
+    <th mat-header-cell mat-sort-header *matHeaderCellDef>Title</th>
+    <td mat-cell *matCellDef="let keysResult">
+      <a
+        class="text-blue-500 underline underline-offset-4"
+        [href]="keysResult.obj.links.html.href"
+        target="_blank"
+      >
+        <span [innerHTML]="getHighlight(keysResult, 'title')"></span>
+      </a>
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="created_on">
+    <th mat-header-cell mat-sort-header *matHeaderCellDef>Age (Days)</th>
+    <td mat-cell *matCellDef="let keysResult" class="text-center">
+      <div class="text-center">
+        {{ dashboardService.getAge(keysResult.obj.created_on) }}
+      </div>
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="updated_on">
+    <th mat-header-cell mat-sort-header *matHeaderCellDef>
+      Last Updated (Days)
+    </th>
+    <td mat-cell *matCellDef="let keysResult">
+      <div class="text-center">
+        {{ dashboardService.getAge(keysResult.obj.updated_on) }}
+      </div>
+    </td>
+  </ng-container>
+
+  <tr
+    mat-header-row
+    *matHeaderRowDef="pullRequestService.displayedColumns"
+  ></tr>
+  <tr
+    mat-row
+    *matRowDef="let keysResult; columns: pullRequestService.displayedColumns"
+    [ngClass]="{
+      '!bg-red-200': pullRequestService.isLastUpdatedOverThreshold(
+        keysResult.obj
+      )
+    }"
+  ></tr>
+</table>

@@ -1,8 +1,8 @@
 <div
   class="text-xs font-light mb-1 text-nowrap overflow-hidden"
-  [matTooltip]="author()"
+  [matTooltip]="getAuthor()"
 >
-  {{ author() }}
+  {{ getAuthor() }}
 </div>
 <div class="flex justify-end">
   <div class="grid gap-1" [style]="getColumnContainerStyle()">

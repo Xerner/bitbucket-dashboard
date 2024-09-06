@@ -8,6 +8,7 @@ import { BitbucketRepository } from '../models/bitbucket/BitbucketRepository';
 import { Commit } from '../models/bitbucket/Commit';
 import { CommitsStore } from '../stores/commits.store.service';
 import { Project } from '../models/bitbucket/Project';
+import { PersonnelStore } from '../stores/personnel.store.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +17,7 @@ export class BitbucketService {
   constructor(
     private bitbucketAPI: BitbucketAPI,
     private appStore: AppStore,
+    private personnelStore: PersonnelStore,
     private pullRequestsStore: PullRequestsStore,
     private commitsStore: CommitsStore,
   ) { }
@@ -58,6 +60,7 @@ export class BitbucketService {
       complete: () => {
         this.appStore.removeError('fetching pull requests')
         this.appStore.itemsLoading.set(this.appStore.itemsLoading() - 1);
+        this.personnelStore.upsertPersonnelFromPullRequests(allPullRequests);
         this.pullRequestsStore.pullRequests.set(allPullRequests);
       }
     })
@@ -80,6 +83,7 @@ export class BitbucketService {
       complete: () => {
         this.appStore.removeError('fetching commits')
         this.appStore.itemsLoading.set(this.appStore.itemsLoading() - 1);
+        this.personnelStore.upsertPersonnelFromCommits(allCommits);
         this.commitsStore.commits.set(allCommits);
       }
     })

@@ -4,6 +4,9 @@ import { AppStore, QueryParamKey } from '../stores/app.store.service';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { debounceTime } from 'rxjs';
 import { BitbucketService } from './bitbucket.service';
+import { Person } from '../models/Personnel';
+import { AnonymityService } from './AnonymityService.service';
+import { PersonnelStore } from '../stores/personnel.store.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,15 +18,19 @@ export class InputsService {
     [QueryParamKey.pullRequestDaysWindow]: new FormControl<number | null>(this.appStore.queryParams[QueryParamKey.pullRequestDaysWindow]()),
 
     [QueryParamKey.workspace]: new FormControl<string | null>(this.appStore.queryParams[QueryParamKey.workspace](), [Validators.required]),
-    [QueryParamKey.project]: new FormControl<number | null>(this.appStore.queryParams[QueryParamKey.project](), [Validators.required]),
+    [QueryParamKey.project]: new FormControl<string | null>(this.appStore.queryParams[QueryParamKey.project](), [Validators.required]),
     [QueryParamKey.access_token]: new FormControl<string | null>(this.appStore.queryParams[QueryParamKey.access_token](), [Validators.required]),
-    author_aliases: new FormControl<string | null>(this.appStore.author_aliases()),
+    personnel: new FormControl<string | null>(JSON.stringify(this.personnelStore.personnel())),
+    anonymity: new FormControl<Person[]>([]),
+    isAnonymityEnabled: new FormControl<boolean>(true),
   });
 
   constructor(
     private appStore: AppStore,
+    private personnelStore: PersonnelStore,
     private route: ActivatedRoute,
     private bitbucketService: BitbucketService,
+    private anonymityService: AnonymityService
   ) {
     this.route.queryParamMap.subscribe(this.parseQueryParams.bind(this))
     Object.keys(this.form.controls).forEach((key) => {
@@ -33,10 +40,30 @@ export class InputsService {
       var control = this.form.controls[key as keyof typeof this.form.controls];
       this.subscribeToValueChanges(control);
     })
-    this.form.controls.author_aliases.valueChanges.pipe(
+    this.form.controls.personnel.valueChanges.pipe(
       debounceTime(500)
     ).subscribe(value => {
-      this.appStore.author_aliases.set(value);
+      if (value == null) {
+        return;
+      }
+      var personnel = JSON.parse(value) as Person[];
+      this.personnelStore.personnel.set(personnel);
+    });
+    this.form.controls.anonymity.valueChanges.pipe(
+      debounceTime(500)
+    ).subscribe(anonymity => {
+      if (anonymity == null) {
+        this.anonymityService.anonymity.set([]);
+      }
+      this.anonymityService.anonymity.set(anonymity!);
+    });
+    this.form.controls.isAnonymityEnabled.valueChanges.pipe(
+      debounceTime(500)
+    ).subscribe(anonymityEnabled => {
+      if (anonymityEnabled == null) {
+        this.anonymityService.isAnonymityEnabled.set(true);
+      }
+      this.anonymityService.isAnonymityEnabled.set(anonymityEnabled!);
     });
   }
 

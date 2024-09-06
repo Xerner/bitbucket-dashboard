@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
-import { ApiInputsComponent } from "../api-inputs/api-inputs.component";
+import { InputsComponent } from "../inputs/inputs.component";
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
@@ -18,7 +18,7 @@ import { PullRequestsComponent } from '../dashboard/pull-requests/pull-requests.
   imports: [
     CommonModule,
     RouterOutlet,
-    ApiInputsComponent,
+    InputsComponent,
     MatExpansionModule,
     MatButtonModule,
     MatIconModule,

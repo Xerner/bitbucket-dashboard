@@ -1,0 +1,12 @@
+<canvas
+  baseChart
+  [data]="pullRequestsStore.pullRequestsAges()"
+  [options]="
+    pullRequestsStore.getOptions(
+      'Days Since Pull Requests Were Opened',
+      'Days Since Created',
+      'Number Of Pull Requests'
+    )
+  "
+  [type]="'bar'"
+></canvas>

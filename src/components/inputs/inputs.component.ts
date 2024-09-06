@@ -11,6 +11,9 @@ import { InputsService } from '../../services/inputs.service';
 import { BitbucketService } from '../../services/bitbucket.service';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { PersonnelStore } from '../../stores/personnel.store.service';
+import { FileInputComponent } from "./file-input/file-input.component";
 
 @Component({
   selector: 'app-api-inputs',
@@ -23,16 +26,19 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     MatTooltipModule,
     MatSelectModule,
     MatProgressBarModule,
-  ],
-  templateUrl: "api-inputs.component.html",
+    MatCheckboxModule,
+    FileInputComponent,
+],
+  templateUrl: "inputs.component.html",
 })
-export class ApiInputsComponent {
+export class InputsComponent {
   @ViewChild('filterInput', { static: true })
   filterInput!: ElementRef<HTMLInputElement>;
   isLoadingProjects = signal<boolean>(false);
 
   constructor(
     protected appStore: AppStore,
+    protected personnelStore: PersonnelStore,
     protected inputsService: InputsService,
     private bitbucketApi: BitbucketAPI,
     private bitbucketService: BitbucketService,
