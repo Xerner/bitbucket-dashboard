@@ -5,7 +5,7 @@ import { PullRequest } from '../models/bitbucket/PullRequest';
 import { PullRequestsService } from '../services/pull-requests.service';
 import { PULL_REQUEST_STATES } from '../services/bitbucket-api.service';
 import { PersonnelStore } from './personnel.store.service';
-import { Person } from '../models/Personnel';
+import { Person } from '../models/Person';
 import { AnonymityService } from '../services/AnonymityService.service';
 
 @Injectable({

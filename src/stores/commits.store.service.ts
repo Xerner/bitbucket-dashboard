@@ -1,6 +1,6 @@
 import { computed, Injectable, signal } from "@angular/core";
 import { Commit } from "../models/bitbucket/Commit";
-import { Person } from "../models/Personnel";
+import { Person } from "../models/Person";
 import { PersonnelStore } from "./personnel.store.service";
 
 @Injectable({ providedIn: 'root' })

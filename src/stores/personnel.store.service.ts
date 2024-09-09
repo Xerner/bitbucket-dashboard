@@ -1,13 +1,12 @@
 import { Injectable, signal } from '@angular/core';
 import { Commit } from '../models/bitbucket/Commit';
-import { Person } from '../models/Personnel';
+import { Person } from '../models/Person';
 import { Author } from '../models/bitbucket/Author';
 import { PullRequest } from '../models/bitbucket/PullRequest';
-import PERSONNEL from '../settings/personnel.json';
 
 @Injectable({ providedIn: 'root' })
 export class PersonnelStore {
-  personnel = signal<Person[]>(PERSONNEL as Person[]);
+  personnel = signal<Person[]>([]);
 
   constructor() { }
 

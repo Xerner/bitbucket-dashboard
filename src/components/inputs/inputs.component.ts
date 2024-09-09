@@ -19,6 +19,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { CodeDialogComponent, ICodeDialogComponent } from './code-dialog/code-dialog.component';
 import PERSONNEL_JSON_SCHEMA from '../../models/personnel-json-schema.json'
 import PERSONNEL_JSON_EXAMPLE from '../../models/personnel-json-example.json'
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
   selector: 'app-api-inputs',
@@ -26,6 +27,7 @@ import PERSONNEL_JSON_EXAMPLE from '../../models/personnel-json-example.json'
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
     MatTooltipModule,

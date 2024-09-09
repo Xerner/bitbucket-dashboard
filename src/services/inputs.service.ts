@@ -4,7 +4,7 @@ import { AppStore, QueryParamKey } from '../stores/app.store.service';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { debounceTime } from 'rxjs';
 import { BitbucketService } from './bitbucket.service';
-import { Person } from '../models/Personnel';
+import { Person } from '../models/Person';
 import { AnonymityService } from './AnonymityService.service';
 import { PersonnelStore } from '../stores/personnel.store.service';
 
@@ -20,7 +20,7 @@ export class InputsService {
     [QueryParamKey.workspace]: new FormControl<string | null>(this.appStore.queryParams[QueryParamKey.workspace](), [Validators.required]),
     [QueryParamKey.project]: new FormControl<string | null>(this.appStore.queryParams[QueryParamKey.project](), [Validators.required]),
     [QueryParamKey.access_token]: new FormControl<string | null>(this.appStore.queryParams[QueryParamKey.access_token](), [Validators.required]),
-    personnel: new FormControl<string | null>(JSON.stringify(this.personnelStore.personnel())),
+    personnel: new FormControl<File | null>(null),
     anonymity: new FormControl<Person[]>([]),
     isAnonymityEnabled: new FormControl<boolean>(true),
   });
@@ -42,12 +42,15 @@ export class InputsService {
     })
     this.form.controls.personnel.valueChanges.pipe(
       debounceTime(500)
-    ).subscribe(value => {
-      if (value == null) {
+    ).subscribe(file => {
+      if (file == null) {
         return;
       }
-      var personnel = JSON.parse(value) as Person[];
-      this.personnelStore.personnel.set(personnel);
+      file.text()
+      .then(json => {
+        var personnel = JSON.parse(json) as Person[];
+        this.personnelStore.personnel.set(personnel);
+      })
     });
     this.form.controls.anonymity.valueChanges.pipe(
       debounceTime(500)

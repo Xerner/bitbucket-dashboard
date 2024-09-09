@@ -3,7 +3,7 @@ import { Component, computed, input } from '@angular/core';
 import { Commit } from '../../../../models/bitbucket/Commit';
 import { DateTime, WeekdayNumbers } from 'luxon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Person } from '../../../../models/Personnel';
+import { Person } from '../../../../models/Person';
 
 export const LuxonToHeatMapWeekdays: Record<number, number> = {
   1: 2, // 1 is Monday in Luxon
