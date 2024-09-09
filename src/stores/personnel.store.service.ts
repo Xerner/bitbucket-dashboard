@@ -35,7 +35,11 @@ export class PersonnelStore {
 
   upsertAuthorIntoAliases(author: Author): Person {
     var personnel = this.personnel();
-    var username = this.stripName(author.user.display_name);
+    if (author.user === undefined) {
+      var username = this.stripName(author.raw);
+    } else {
+      var username = this.stripName(author.user.display_name);
+    }
     var person = personnel.find(personnel_ => personnel_.name == username || personnel_.aliases.includes(username))
     if (person == undefined) {
       person = { name: username, aliases: [] };
