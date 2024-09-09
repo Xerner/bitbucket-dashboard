@@ -1,0 +1,66 @@
+<mat-dialog-content class="bg-slate-700">
+  <div class="flex gap-3">
+    @if (codeDialogArgs.example || codeDialogArgs.schema) {
+    <mat-tab-group>
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <span class="text-slate-50">Code</span>
+        </ng-template>
+        <div
+          class="py-2 px-1 bg-slate-600 text-slate-50 rounded-lg font-mono whitespace-pre-wrap min-w-96"
+        >
+          {{ codeDialogArgs.code }}
+        </div>
+      </mat-tab>
+      @if (codeDialogArgs.example) {
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <span class="text-slate-50">Example</span>
+        </ng-template>
+        <div
+          class="py-2 px-1 bg-slate-600 text-slate-50 rounded-lg font-mono whitespace-pre-wrap min-w-96"
+        >
+          {{ codeDialogArgs.example }}
+        </div>
+      </mat-tab>
+      } @if (codeDialogArgs.schema) {
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <span class="text-slate-50">Schema</span>
+        </ng-template>
+        <div
+          class="py-2 px-1 bg-slate-600 text-slate-50 rounded-lg font-mono whitespace-pre-wrap min-w-96"
+        >
+          {{ codeDialogArgs.schema }}
+        </div>
+      </mat-tab>
+      }
+    </mat-tab-group>
+    } @else {
+    <div
+      class="py-2 px-1 bg-slate-600 text-slate-50 rounded-lg font-mono whitespace-pre-wrap min-w-96"
+    >
+      {{ codeDialogArgs.code }}
+    </div>
+    }
+
+    <div class="flex flex-col gap-3">
+      <button
+        mat-icon-button
+        (click)="onCopyClicked()"
+        matTooltip="Copy to clipboard"
+      >
+        <mat-icon class="text-slate-50">content_copy</mat-icon>
+      </button>
+      <button mat-icon-button matTooltip="Download JSON">
+        <a
+          [href]="this.downloadJsonStr()"
+          download="personnel.json"
+          target="_self"
+        >
+          <mat-icon class="text-slate-50">download</mat-icon>
+        </a>
+      </button>
+    </div>
+  </div>
+</mat-dialog-content>

@@ -2,7 +2,7 @@
 <div (click)="handleClick($event)">
   <mat-form-field class="w-full cursor-pointer" [formControl]="this.formControl()">
     <mat-icon matPrefix class="px-3">{{ icon() }}</mat-icon>
-    <input type="text" readonly matInput placeholder="Upload File*" [formControl]="fileName" />
+    <input type="text" readonly matInput placeholder="Upload File" [formControl]="fileName" />
     <input
       type="file"
       hidden

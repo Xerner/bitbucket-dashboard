@@ -22,19 +22,25 @@ import { MatInputModule } from "@angular/material/input";
   ]
 })
 export class FileInputComponent implements ControlValueAccessor {
-  label = input("Upload");
-  icon = input("attach_file");
+  label = input<string>("Upload");
+  icon = input<string>("attach_file");
   disabled = signal<boolean>(false);
   @ViewChild(FormControlDirective, { static: true })
   formControlDirective!: FormControlDirective;
   formControl = input.required<FormControl>();
-  fileName = new FormControl({ value: "", disabled: this.disabled() }, Validators.required);
+  fileName = new FormControl<string>({ value: "", disabled: this.disabled() });
 
   @ViewChild('fileInput', { static: true })
   set fileInputRef(ref: ElementRef<HTMLInputElement>) {
     this.fileInput = ref.nativeElement;
   }
   fileInput!: HTMLInputElement;
+
+  ngAfterViewInit(): void {
+    if (this.formControl().value) {
+      this.fileName.setValue("Custom config loaded");
+    }
+  }
 
   registerOnTouched(fn: any): void {
     this.formControlDirective.valueAccessor!.registerOnTouched(fn);
@@ -53,14 +59,6 @@ export class FileInputComponent implements ControlValueAccessor {
     this.updateFile(file);
   }
 
-  // registerOnChange(fn: any): void {
-  //   this.onChange = fn;
-  // }
-
-  // registerOnTouched(fn: any): void {
-  //   this.onTouched = fn;
-  // }
-
   setDisabledState?(isDisabled: boolean): void {
     this.disabled.set(isDisabled);
   }
@@ -77,7 +75,10 @@ export class FileInputComponent implements ControlValueAccessor {
 
   updateFile(file: File) {
     this.fileName.patchValue(file.name);
-    this.formControl()?.setValue(file);
+    file.text()
+      .then(json => {
+        this.formControl()?.setValue(json);
+      })
   }
 
   public onBlur(): void {

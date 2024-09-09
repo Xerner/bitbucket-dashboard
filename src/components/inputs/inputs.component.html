@@ -1,6 +1,12 @@
 <!-- API Inputs -->
 <div class="grid grid-cols-4 gap-3 items-center justify-center">
   <div class="font-medium font-xl col-span-4">API Inputs</div>
+
+  <mat-form-field>
+    <mat-label>Token</mat-label>
+    <input matInput [formControl]="inputsService.form.controls.access_token" />
+  </mat-form-field>
+
   <mat-form-field>
     <mat-label>Workspace</mat-label>
     <input matInput [formControl]="inputsService.form.controls.workspace" />
@@ -16,11 +22,6 @@
     @if (isLoadingProjects()) {
     <mat-progress-bar mode="query"></mat-progress-bar>
     }
-  </mat-form-field>
-
-  <mat-form-field>
-    <mat-label>Token</mat-label>
-    <input matInput [formControl]="inputsService.form.controls.access_token" />
   </mat-form-field>
 
   <div class="flex flex-col">
@@ -94,15 +95,6 @@
   <div></div>
   <div></div>
 
-  <!-- <mat-form-field class="col-span-2">
-    <mat-label>Username Aliases File</mat-label>
-    <input
-      matInput
-      [formControl]="inputsService.form.controls.personnel"
-      placeholder="[{ name: 'john', aliases: ['johnny'] }]"
-    />
-  </mat-form-field> -->
-
   <button
     mat-raised-button
     class="!bg-gradient-to-r from-blue-600 to-purple-600 !text-slate-100 mt-2"
@@ -117,12 +109,15 @@
 <div class="font-medium font-xl mb-3">Personnel</div>
 <div class="grid grid-cols-4 gap-3">
   <app-file-input
+    class="col-span-3"
     [formControl]="inputsService.form.controls.personnel"
     label="Upload Personnel File"
-    icon="attach_file"
-    class="col-span-3"
+    icon="data_object"
   ></app-file-input>
-  <button mat-raised-button class="mt-2">Get Personnel JSON</button>
+
+  <button mat-raised-button class="mt-2" (click)="openPersonnelJsonDialog()">
+    See Personnel
+  </button>
 
   <mat-form-field class="w-full col-span-3">
     <mat-label>Select Personnel To Show</mat-label>

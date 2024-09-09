@@ -14,6 +14,11 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { PersonnelStore } from '../../stores/personnel.store.service';
 import { FileInputComponent } from "./file-input/file-input.component";
+import { MatIconModule } from '@angular/material/icon';
+import { MatDialog } from '@angular/material/dialog';
+import { CodeDialogComponent, ICodeDialogComponent } from './code-dialog/code-dialog.component';
+import PERSONNEL_JSON_SCHEMA from '../../models/personnel-json-schema.json'
+import PERSONNEL_JSON_EXAMPLE from '../../models/personnel-json-example.json'
 
 @Component({
   selector: 'app-api-inputs',
@@ -27,6 +32,7 @@ import { FileInputComponent } from "./file-input/file-input.component";
     MatSelectModule,
     MatProgressBarModule,
     MatCheckboxModule,
+    MatIconModule,
     FileInputComponent,
 ],
   templateUrl: "inputs.component.html",
@@ -42,6 +48,7 @@ export class InputsComponent {
     protected inputsService: InputsService,
     private bitbucketApi: BitbucketAPI,
     private bitbucketService: BitbucketService,
+    protected dialogService: MatDialog
   ) { }
 
   onFetchAllClicked() {
@@ -59,5 +66,20 @@ export class InputsComponent {
 
   onFetchCommitsClicked() {
     this.bitbucketService.getCommits();
+  }
+
+  openPersonnelJsonDialog() {
+    var args: ICodeDialogComponent = {
+      filename: "personnel.json",
+      code: JSON.stringify(this.personnelStore.personnel(), null, 2),
+      schema: JSON.stringify(PERSONNEL_JSON_SCHEMA, null, 2),
+      example: JSON.stringify(PERSONNEL_JSON_EXAMPLE, null, 2),
+    }
+    this.dialogService.open(CodeDialogComponent, {
+      data: args,
+      position: {
+        top: "10%"
+      }
+    });
   }
 }

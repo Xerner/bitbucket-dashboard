@@ -3,11 +3,11 @@ import { Commit } from '../models/bitbucket/Commit';
 import { Person } from '../models/Personnel';
 import { Author } from '../models/bitbucket/Author';
 import { PullRequest } from '../models/bitbucket/PullRequest';
-import { aliases } from '../settings/aliases';
+import PERSONNEL from '../settings/personnel.json';
 
 @Injectable({ providedIn: 'root' })
 export class PersonnelStore {
-  personnel = signal<Person[]>(aliases);
+  personnel = signal<Person[]>(PERSONNEL as Person[]);
 
   constructor() { }
 
