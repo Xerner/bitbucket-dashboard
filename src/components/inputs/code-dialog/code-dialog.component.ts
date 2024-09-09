@@ -27,7 +27,7 @@ export interface ICodeDialogComponent {
   templateUrl: './code-dialog.component.html',
 })
 export class CodeDialogComponent {
-  downloadJsonStr = computed<string>(() => "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.codeDialogArgs.code, null, 2)));
+  downloadJsonStr = computed<string>(() => "data:text/json;charset=utf-8," + encodeURIComponent(this.codeDialogArgs.code));
 
   constructor(
     @Inject(MAT_DIALOG_DATA) protected codeDialogArgs: ICodeDialogComponent,

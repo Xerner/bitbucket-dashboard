@@ -55,7 +55,7 @@
       <button mat-icon-button matTooltip="Download JSON">
         <a
           [href]="this.downloadJsonStr()"
-          download="personnel.json"
+          [download]="codeDialogArgs.filename"
           target="_self"
         >
           <mat-icon class="text-slate-50">download</mat-icon>
