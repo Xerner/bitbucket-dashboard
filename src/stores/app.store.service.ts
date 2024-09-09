@@ -2,6 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { computed, Injectable, signal, WritableSignal } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Project } from '../models/bitbucket/Project';
+import { Views } from '../settings/Views';
 
 export type QueryParamKeyType = QueryParamKey | string;
 export enum QueryParamKey {
@@ -11,6 +12,7 @@ export enum QueryParamKey {
   workspace = 'workspace',
   project = 'project',
   access_token = 'access_token',
+  view = 'view',
 }
 
 @Injectable({
@@ -27,6 +29,7 @@ export class AppStore {
     [QueryParamKey.workspace]: signal<string | null>(""),
     [QueryParamKey.project]: signal<string | null>(""),
     [QueryParamKey.access_token]: signal<string | null>(""),
+    [QueryParamKey.view]: signal<keyof typeof Views | null>(null),
   }
   itemsLoading = signal<number>(0);
   isLoading = computed<boolean>(() => this.itemsLoading() != 0);

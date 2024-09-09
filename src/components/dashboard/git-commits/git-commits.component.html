@@ -1,5 +1,16 @@
-<div>{{ commitsStore.commits().length }} total commits</div>
-<div class="flex flex-wrap gap-3">
+<div class="flex justify-between border-b">
+  <div class="font-medium font-2xl p-3">Git Commits</div>
+  <div
+    [ngClass]="{
+      'text-right p-3': true,
+      'italic text-slate-400': commitsStore.commits().length == 0
+    }"
+  >
+    {{ commitsStore.commits().length }} total commits
+  </div>
+</div>
+
+<div class="flex flex-wrap gap-3 p-3">
   @for (authorCommits of commitsStore.authorsCommits(); track $index) {
   <app-git-heat-map
     [daysWindow]="appStore.queryParams[QueryParamKey.commitDaysWindow]()"

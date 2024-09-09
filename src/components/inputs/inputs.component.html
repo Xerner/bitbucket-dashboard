@@ -134,3 +134,27 @@
     >Is Anonymous</mat-checkbox
   >
 </div>
+
+<!-- Features -->
+<div class="font-medium font-xl mb-3">Views & Features</div>
+<div class="grid grid-cols-4 gap-3">
+  <mat-form-field class="w-full col-span-4">
+    <mat-label>Select A View</mat-label>
+    <mat-select [formControl]="inputsService.form.controls.view">
+      @for (view of Views; track $index) {
+      <mat-option [value]="view">{{ view }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field class="w-full col-span-4">
+    <mat-label>Select Features</mat-label>
+    <mat-select [formControl]="inputsService.form.controls.features" multiple>
+      @for (feature of Features; track $index) {
+      <mat-option [value]="feature[1]">{{ feature[1] }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  <!-- <div class="col-span-3"></div> -->
+</div>
+

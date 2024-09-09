@@ -50,6 +50,10 @@ export class PullRequestsStore {
           title: {
             display: true,
             text: yAxisTitle
+          },
+          ticks: {
+            stepSize: 1,
+            precision: 0
           }
         },
         x: {
@@ -151,9 +155,9 @@ export class PullRequestsStore {
       count[1]++;
       return count;
     })
-    authorCounts.sort((count1, count2) => count1[1] > count2[1] ? -1 : 1);
+    authorCounts.sort((count1, count2) => count1[1] < count2[1] ? -1 : 1);
     chartDataset.datasets[0].data = authorCounts.map(authorCount => authorCount[1]);
-    chartDataset.labels = authorCounts.map(authorCount => this.anonymityService.isAnonymous(authorCount[0]) ? "Anon" : authorCount[0].name);
+    chartDataset.labels = authorCounts.map(authorCount => this.anonymityService.isAnonymous(authorCount[0]) ? "" : authorCount[0].name);
     return chartDataset;
   }
 
@@ -182,7 +186,7 @@ export class PullRequestsStore {
         }
       })
     })
-    participationCounts.sort((count1, count2) => count1[1] > count2[1] ? -1 : 1);
+    participationCounts.sort((count1, count2) => count1[1] < count2[1] ? -1 : 1);
     var expectedParticipation = Math.floor(data.length / participationCounts.length) * 2;
     var expectedParticipationChartData = participationCounts.map(_ => expectedParticipation);
     chartDataset.datasets.push({
@@ -195,7 +199,7 @@ export class PullRequestsStore {
     });
     chartDataset.datasets[0].data = participationCounts.map(count => count[1]);
     chartDataset.datasets[0].backgroundColor = 'rgba(196, 64, 196, 0.6)';
-    chartDataset.labels = participationCounts.map(participationCount => this.anonymityService.isAnonymous(participationCount[0]) ? "Anon" : participationCount[0].name);
+    chartDataset.labels = participationCounts.map(participationCount => this.anonymityService.isAnonymous(participationCount[0]) ? "" : participationCount[0].name);
     return chartDataset;
   }
 }

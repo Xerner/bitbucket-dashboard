@@ -7,6 +7,9 @@ import { BitbucketService } from './bitbucket.service';
 import { Person } from '../models/Person';
 import { AnonymityService } from './AnonymityService.service';
 import { PersonnelStore } from '../stores/personnel.store.service';
+import { Feature } from '../settings/Feature';
+import { Views } from '../settings/Views'
+import { FeatureGroup } from '../settings/FeatureGroup';
 
 @Injectable({
   providedIn: 'root'
@@ -20,9 +23,13 @@ export class InputsService {
     [QueryParamKey.workspace]: new FormControl<string | null>(this.appStore.queryParams[QueryParamKey.workspace](), [Validators.required]),
     [QueryParamKey.project]: new FormControl<string | null>(this.appStore.queryParams[QueryParamKey.project](), [Validators.required]),
     [QueryParamKey.access_token]: new FormControl<string | null>(this.appStore.queryParams[QueryParamKey.access_token](), [Validators.required]),
+
     personnel: new FormControl<File | null>(null),
     anonymity: new FormControl<Person[]>([]),
     isAnonymityEnabled: new FormControl<boolean>(true),
+
+    view: new FormControl<FeatureGroup | null>(null),
+    features: new FormControl<Feature[]>([]),
   });
 
   constructor(
@@ -32,7 +39,10 @@ export class InputsService {
     private bitbucketService: BitbucketService,
     private anonymityService: AnonymityService
   ) {
+    // TODO: clean up this cluttered garbage
     this.route.queryParamMap.subscribe(this.parseQueryParams.bind(this))
+    // subscruibe all query param controls to query param changes
+    // TODO: use new query param service in common-ts
     Object.keys(this.form.controls).forEach((key) => {
       if (!QueryParamKey.hasOwnProperty(key)) {
         return;
@@ -40,6 +50,7 @@ export class InputsService {
       var control = this.form.controls[key as keyof typeof this.form.controls];
       this.subscribeToValueChanges(control);
     })
+    // personnel
     this.form.controls.personnel.valueChanges.pipe(
       debounceTime(500)
     ).subscribe(file => {
@@ -47,11 +58,12 @@ export class InputsService {
         return;
       }
       file.text()
-      .then(json => {
-        var personnel = JSON.parse(json) as Person[];
-        this.personnelStore.personnel.set(personnel);
-      })
+        .then(json => {
+          var personnel = JSON.parse(json) as Person[];
+          this.personnelStore.personnel.set(personnel);
+        })
     });
+    // anonymity
     this.form.controls.anonymity.valueChanges.pipe(
       debounceTime(500)
     ).subscribe(anonymity => {
@@ -60,6 +72,7 @@ export class InputsService {
       }
       this.anonymityService.anonymity.set(anonymity!);
     });
+    // is anonymous enabled
     this.form.controls.isAnonymityEnabled.valueChanges.pipe(
       debounceTime(500)
     ).subscribe(anonymityEnabled => {
@@ -67,6 +80,38 @@ export class InputsService {
         this.anonymityService.isAnonymityEnabled.set(true);
       }
       this.anonymityService.isAnonymityEnabled.set(anonymityEnabled!);
+    });
+    // view
+    this.form.controls.view.valueChanges.subscribe(view => {
+      if (view == null) {
+        this.form.controls.features.setValue([]);
+        return;
+      }
+      var features = Views[view];
+      this.form.controls.features.setValue(features, { "emitEvent": false });
+    });
+    // features
+    this.form.controls.features.valueChanges.subscribe(features => {
+      if (features == null) {
+        this.form.controls.view.setValue(null);
+        return;
+      }
+      if (features.length === 0) {
+        this.form.controls.view.setValue(null, { "emitEvent": false });
+      }
+      var view: FeatureGroup | null = Object.keys(Views).reduce((accumulator: string | null, view: string) => {
+        var viewFeatures = Views[view as FeatureGroup];
+        var someFeatureDoesNotBelongInView = features.some(feature => viewFeatures.includes(feature) == false);
+        var featuresAreTheSameLength = viewFeatures.length == features.length;
+        if (someFeatureDoesNotBelongInView) {
+          return accumulator;
+        }
+        if (featuresAreTheSameLength) {
+          return view;
+        }
+        return accumulator;
+      }, null) as FeatureGroup | null;
+      this.form.controls.view.setValue(view, { "emitEvent": false });
     });
   }
 

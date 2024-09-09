@@ -20,6 +20,8 @@ import { CodeDialogComponent, ICodeDialogComponent } from './code-dialog/code-di
 import PERSONNEL_JSON_SCHEMA from '../../models/personnel-json-schema.json'
 import PERSONNEL_JSON_EXAMPLE from '../../models/personnel-json-example.json'
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { Feature } from '../../settings/Feature';
+import { Views } from '../../settings/Views';
 
 @Component({
   selector: 'app-api-inputs',
@@ -40,6 +42,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
   templateUrl: "inputs.component.html",
 })
 export class InputsComponent {
+  Views = Object.keys(Views);
+  Features = Object.entries(Feature);
   @ViewChild('filterInput', { static: true })
   filterInput!: ElementRef<HTMLInputElement>;
   isLoadingProjects = signal<boolean>(false);

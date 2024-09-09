@@ -1,0 +1,11 @@
+<div class="flex justify-between border-b">
+  <div class="font-medium font-2xl p-3">Pull Requests</div>
+  <div
+    [ngClass]="{
+      'text-right p-3': true,
+      'italic text-slate-400': openPullRequestsCount() == 0
+    }"
+  >
+    {{ allPullRequestsCount() }} total, {{ openPullRequestsCount() }} open
+  </div>
+</div>

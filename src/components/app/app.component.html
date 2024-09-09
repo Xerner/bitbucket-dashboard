@@ -45,14 +45,25 @@
     }
   </div>
 
-  <div
-    class="grow grid xl:grid-cols-2 xl:grid-rows-1 lg:grid-cols-1 lg:grid-rows-2 overflow-y-hidden"
-  >
-    <app-pull-requests
-      class="overflow-y-scroll xl:border-r xl:border-t-0 lg:border-r-0 lg:border-t border-slate-500"
-    ></app-pull-requests>
-    <app-git-commits
-      class="flex flex-col gap-3 p-3 overflow-y-scroll xl:order-last lg:order-first"
-    ></app-git-commits>
+  <div class="grow flex flex-col">
+    @if (hasFeature(Features.GitCommitHistory)) {
+    <app-git-commits></app-git-commits>
+    } @if (hasFeatureInFeatureGroup(FeatureGroups.PullRequests)) {
+    <app-pull-request-counter></app-pull-request-counter>
+    } @if (hasFeatureInFeatureGroup(FeatureGroups.PullRequestCharts)) {
+    <div class="grow grid grid-cols-2">
+      @if (hasFeature(Features.PullRequestAgeChart)) {
+      <app-pr-age-chart></app-pr-age-chart>
+      } @if (hasFeature(Features.PullRequestLastUpdatedChart)) {
+      <app-pr-last-updated-chart></app-pr-last-updated-chart>
+      } @if (hasFeature(Features.PullRequestParticipationChart)) {
+      <app-pr-participation-chart></app-pr-participation-chart>
+      } @if (hasFeature(Features.PullRequestSubmittedChart)) {
+      <app-pr-submitted-by-author-chart></app-pr-submitted-by-author-chart>
+      }
+    </div>
+    } @if (hasFeature(Features.OpenPullRequestTable)) {
+    <app-pull-request-table></app-pull-request-table>
+    }
   </div>
 </div>
