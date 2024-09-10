@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed } from '@angular/core';
 import { PullRequestsStore } from '../../../../stores/pull-requests.store.service';
+import { AppStore, QueryParamKey } from '../../../../stores/app.store.service';
 
 @Component({
   selector: 'app-pull-request-counter',
@@ -11,6 +12,7 @@ import { PullRequestsStore } from '../../../../stores/pull-requests.store.servic
   templateUrl: './pull-request-counter.component.html',
 })
 export class PullRequestCounterComponent {
+  QueryParamKey = QueryParamKey
   allPullRequestsCount = computed(() => {
     var pullRequests = this.pullRequestsStore.pullRequests()
     if (pullRequests == null) {
@@ -28,5 +30,6 @@ export class PullRequestCounterComponent {
 
   constructor(
     protected pullRequestsStore: PullRequestsStore,
+    protected appStore: AppStore
   ) {}
 }

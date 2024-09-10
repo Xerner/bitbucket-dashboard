@@ -6,6 +6,14 @@
       'italic text-slate-400': commitsStore.commits().length == 0
     }"
   >
+    <span class="italic font-normal"
+      >in the last
+      {{
+        appStore.queryParams[QueryParamKey.pullRequestDaysWindow]()
+      }}
+      days</span
+    >
+    &nbsp;&nbsp;&nbsp;&nbsp;
     {{ commitsStore.commits().length }} total commits
   </div>
 </div>

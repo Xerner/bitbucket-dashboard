@@ -140,6 +140,7 @@ export class PullRequestsStore {
 
   getSubmittedByAuthorChartData() {
     var data = this.pullRequests();
+    var personnel = this.personnelStore.personnel();
     var chartDataset = this.dashboardService.getChartDataTemplate<number>("Count");
     if (data == null || data.length == 0) {
       return chartDataset;
@@ -155,6 +156,7 @@ export class PullRequestsStore {
       count[1]++;
       return count;
     })
+    personnel.forEach(person => this.addEmptyCountIfNotExists(person, authorCounts))
     authorCounts.sort((count1, count2) => count1[1] < count2[1] ? -1 : 1);
     chartDataset.datasets[0].data = authorCounts.map(authorCount => authorCount[1]);
     chartDataset.labels = authorCounts.map(authorCount => this.anonymityService.isAnonymous(authorCount[0]) ? "" : authorCount[0].name);
@@ -163,8 +165,8 @@ export class PullRequestsStore {
 
   getParticipatedByAuthorChartData() {
     var data = this.pullRequests();
+    var personnel = this.personnelStore.personnel();
     var chartDataset = this.dashboardService.getChartDataTemplate<number>("Count");
-
     if (data == null || data.length == 0) {
       return chartDataset;
     }
@@ -186,8 +188,10 @@ export class PullRequestsStore {
         }
       })
     })
+    personnel.forEach(person => this.addEmptyCountIfNotExists(person, participationCounts))
     participationCounts.sort((count1, count2) => count1[1] < count2[1] ? -1 : 1);
     var expectedParticipation = Math.floor(data.length / participationCounts.length) * 2;
+    expectedParticipation = expectedParticipation == 0 ? 1 : expectedParticipation;
     var expectedParticipationChartData = participationCounts.map(_ => expectedParticipation);
     chartDataset.datasets.push({
       type: 'line',
@@ -201,5 +205,14 @@ export class PullRequestsStore {
     chartDataset.datasets[0].backgroundColor = 'rgba(196, 64, 196, 0.6)';
     chartDataset.labels = participationCounts.map(participationCount => this.anonymityService.isAnonymous(participationCount[0]) ? "" : participationCount[0].name);
     return chartDataset;
+  }
+
+  addEmptyCountIfNotExists(person: Person, counts: [Person, number][]) {
+    var hasPerson = counts.some(count => count[0] == person)
+    if (hasPerson) {
+      return;
+    }
+    var count: [Person, number] = [person, 0]
+    counts.push(count);
   }
 }

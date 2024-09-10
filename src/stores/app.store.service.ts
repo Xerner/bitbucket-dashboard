@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { computed, Injectable, signal, WritableSignal } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Project } from '../models/bitbucket/Project';
-import { Views } from '../settings/Views';
+import { Views } from '../models/Views';
 
 export type QueryParamKeyType = QueryParamKey | string;
 export enum QueryParamKey {
@@ -64,10 +64,7 @@ export class AppStore {
   }
 
   updateQueryParam(name: string, value: any) {
-    if (value == null) {
-      return;
-    }
-    const queryParams: Params = { [name]: value.toString() };
+    const queryParams: Params = { [name]: value == null ? null : value.toString() };
     var currentValue = this.route.snapshot.queryParamMap.get(name);
     if (currentValue == value) {
       return;

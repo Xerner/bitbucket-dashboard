@@ -17,11 +17,11 @@ import { FileInputComponent } from "./file-input/file-input.component";
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { CodeDialogComponent, ICodeDialogComponent } from './code-dialog/code-dialog.component';
-import PERSONNEL_JSON_SCHEMA from '../../models/personnel-json-schema.json'
-import PERSONNEL_JSON_EXAMPLE from '../../models/personnel-json-example.json'
+import PERSONNEL_JSON_SCHEMA from '../../settings/personnel-json-schema.json'
+import PERSONNEL_JSON_EXAMPLE from '../../settings/personnel-json-example.json'
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { Feature } from '../../settings/Feature';
-import { Views } from '../../settings/Views';
+import { Feature } from '../../models/Feature';
+import { Views } from '../../models/Views';
 
 @Component({
   selector: 'app-api-inputs',

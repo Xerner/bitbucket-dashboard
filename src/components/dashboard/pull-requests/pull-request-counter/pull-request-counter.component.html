@@ -6,6 +6,14 @@
       'italic text-slate-400': openPullRequestsCount() == 0
     }"
   >
+    <span class="italic font-normal"
+      >in the last
+      {{
+        appStore.queryParams[QueryParamKey.pullRequestDaysWindow]()
+      }}
+      days</span
+    >
+    &nbsp;&nbsp;&nbsp;&nbsp;
     {{ allPullRequestsCount() }} total, {{ openPullRequestsCount() }} open
   </div>
 </div>

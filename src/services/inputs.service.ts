@@ -7,9 +7,9 @@ import { BitbucketService } from './bitbucket.service';
 import { Person } from '../models/Person';
 import { AnonymityService } from './AnonymityService.service';
 import { PersonnelStore } from '../stores/personnel.store.service';
-import { Feature } from '../settings/Feature';
-import { Views } from '../settings/Views'
-import { FeatureGroup } from '../settings/FeatureGroup';
+import { Feature } from '../models/Feature';
+import { FeatureGroup } from '../models/FeatureGroup';
+import { Views } from '../models/Views';
 
 @Injectable({
   providedIn: 'root'
@@ -84,7 +84,7 @@ export class InputsService {
     // view
     this.form.controls.view.valueChanges.subscribe(view => {
       if (view == null) {
-        this.form.controls.features.setValue([]);
+        // this.form.controls.features.setValue([], { "emitEvent": false });
         return;
       }
       var features = Views[view];
@@ -97,7 +97,7 @@ export class InputsService {
         return;
       }
       if (features.length === 0) {
-        this.form.controls.view.setValue(null, { "emitEvent": false });
+        this.form.controls.view.setValue(null);
       }
       var view: FeatureGroup | null = Object.keys(Views).reduce((accumulator: string | null, view: string) => {
         var viewFeatures = Views[view as FeatureGroup];
@@ -111,7 +111,7 @@ export class InputsService {
         }
         return accumulator;
       }, null) as FeatureGroup | null;
-      this.form.controls.view.setValue(view, { "emitEvent": false });
+      this.form.controls.view.setValue(view);
     });
   }
 
