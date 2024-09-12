@@ -29,7 +29,8 @@
       "wayne byard",
       "wb129",
       "GOUTSI\\wb129",
-      "wayne b"
+      "wayne b",
+      "User Fifteen"
     ]
   },
   {
@@ -87,5 +88,45 @@
     "aliases": [
       "GOUTSI\\km206"
     ]
+  },
+  {
+    "name": "Ben Blazy",
+    "aliases": []
+  },
+  {
+    "name": "Ryan Soulard",
+    "aliases": []
+  },
+  {
+    "name": "Noah Surprenant",
+    "aliases": []
+  },
+  {
+    "name": "Kenneth Mead",
+    "aliases": []
+  },
+  {
+    "name": "Cameron Rye",
+    "aliases": []
+  },
+  {
+    "name": "Sindy Zaki",
+    "aliases": []
+  },
+  {
+    "name": "Alex Gonzalez",
+    "aliases": []
+  },
+  {
+    "name": "Eric Reed",
+    "aliases": []
+  },
+  {
+    "name": "Jon Taylor",
+    "aliases": []
+  },
+  {
+    "name": "David Pierce",
+    "aliases": []
   }
 ]
