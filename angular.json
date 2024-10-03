@@ -60,6 +60,9 @@
           "defaultConfiguration": "production"
         },
         "serve": {
+          "options": {
+            "host": "0.0.0.0"
+          },
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
@@ -79,5 +82,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }
