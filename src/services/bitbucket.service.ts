@@ -47,7 +47,7 @@ export class BitbucketService {
     this.appStore.itemsLoading.set(this.appStore.itemsLoading() + 1);
     // fetch pull requests
     reposObservable.pipe(
-      concatMap(repositories => repositories.map(repository => this.bitbucketAPI.getPullRequests(repository.uuid))),
+      concatMap(repositories => repositories.map(repository => this.bitbucketAPI.getPullRequests(repository.name))),
       mergeAll(),
       map((pullRequests) => pullRequests.flat())
     ).subscribe({

@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { AppStore, QueryParamKey } from "../stores/app.store.service";
-import { from, map, Observable } from "rxjs";
+import { filter, from, map, merge, Observable, of } from "rxjs";
 import { BitbucketApiResponse } from "../models/bitbucket/BitbucketApiResponse";
 import { BitbucketRepository } from "../models/bitbucket/BitbucketRepository";
 import { DateTime } from "luxon";
@@ -29,7 +29,7 @@ export class BitbucketAPI {
     private appStore: AppStore
   ) { }
 
-  getAllPages<T>(entryObservable: Observable<BitbucketApiResponse<T>>, takeWhile: ((item: T[]) => boolean) | null = null, queryParams: HttpParams | null = null, count = 0) {
+  getAllPages<T>(entryObservable: Observable<BitbucketApiResponse<T>>, takeWhile: ((item: T[]) => boolean) | null = null, queryParams: HttpParams | {} = {}, count = 0) {
     if (count > this.MAX_PAGE_COUNT) {
       return from([])
     }
@@ -37,29 +37,27 @@ export class BitbucketAPI {
     return new Observable<T[]>(subscriber => {
       entryObservable.subscribe(results => {
         subscriber.next(results.values);
-        if (takeWhile != null && !takeWhile(results.values)) {
+        var hasNext = results.next != null && results.next != undefined;
+        var shouldTakeNext = takeWhile != null && takeWhile(results.values);
+        if (hasNext == false || shouldTakeNext == false) {
           subscriber.complete();
           return;
         }
-        if (results.next != null && results.next != undefined) {
-          this.getAllPages(this.http.get<BitbucketApiResponse<T>>(
-            results.next,
-            { params: queryParams ?? {}, headers: this.getHeaders(this.appStore.queryParams['access_token']()) }
-          ), takeWhile, queryParams, count)
-            .subscribe({
-              next: (values) => {
-                subscriber.next(values)
-              },
-              error: (error) => {
-                subscriber.error(error)
-              },
-              complete: () => {
-                subscriber.complete()
-              }
-            });
-        } else {
-          subscriber.complete();
-        }
+        this.getAllPages(this.http.get<BitbucketApiResponse<T>>(
+          results.next,
+          { params: queryParams, headers: this.getHeaders(this.appStore.queryParams['access_token']()) }
+        ), takeWhile, queryParams, count)
+          .subscribe({
+            next: (values) => {
+              subscriber.next(values)
+            },
+            error: (error) => {
+              subscriber.error(error)
+            },
+            complete: () => {
+              subscriber.complete()
+            }
+          });
       })
     });
   }
@@ -79,20 +77,62 @@ export class BitbucketAPI {
 
   // https://developer.atlassian.com/cloud/bitbucket/rest/api-group-pullrequests/#api-repositories-workspace-repo-slug-pullrequests-get
   getPullRequests(repository: string) {
-    var states = Object.values(PULL_REQUEST_STATES).map(state => "state=" + state)
-    var queryStr: string = states.join("&")
-    var dateForQuery = this.getDateFromDateWindowForQuery(this.appStore.queryParams[QueryParamKey.pullRequestDaysWindow]());
-    if (dateForQuery == null) {
-      return [];
+    var alreadyFetchedIds = new Set<number>();
+    return merge(this.getOpenPullRequests(repository), this.getPullRequestsUpToDate(repository))
+      .pipe(
+        map((prs) => prs.filter(pr => this.tryAddToSet(pr.id, alreadyFetchedIds))),
+        filter(prs => prs.length != 0)
+      )
+  }
+
+  /**
+   * Attemps to add the item to the set
+   * @returns returns true if it did not already exist, false if it did
+   */
+  tryAddToSet<TKey>(key: TKey, set: Set<TKey>): boolean {
+    if (set.has(key)) {
+      return false;
     }
+    set.add(key)
+    return true;
+  }
+
+  private getOpenPullRequests(repository: string) {
+    var queryParams = new HttpParams()
+    queryParams = queryParams.append("fields", "+values.participants")
     return this.getAllPages(
       this.http.get<BitbucketApiResponse<PullRequest>>(
-        `${this.REPOSITORIES_URL}/${this.appStore.queryParams['workspace']()}/${repository}/pullrequests?${queryStr}&fields=%2Bvalues.participants`,
+        `${this.REPOSITORIES_URL}/${this.appStore.queryParams['workspace']()}/${repository}/pullrequests`,
         {
-          headers: this.getHeaders(this.appStore.queryParams['access_token']())
+          headers: this.getHeaders(this.appStore.queryParams['access_token']()),
+          params: queryParams
+        }
+      ), null, queryParams
+    )
+  }
+
+  private getPullRequestsUpToDate(repository: string) {
+    var queryParams = new HttpParams()
+    queryParams = queryParams.append("sort", "-created_on")
+    queryParams = queryParams.append("fields", "+values.participants")
+    // by default, the api returns only open pull requests
+    Object.values(PULL_REQUEST_STATES).forEach(state => {
+      queryParams = queryParams.append("state", state)
+    })
+    var dateForQuery = this.getDateFromDateWindowForQuery(this.appStore.queryParams[QueryParamKey.pullRequestDaysWindow]());
+    if (dateForQuery == null) {
+      return of([]);
+    }
+    var takeWhile = (this.allAreInsideDateWindow<PullRequest>).bind(this, dateForQuery!, this.isPullRequestInsideDateWindow);
+    return this.getAllPages(
+      this.http.get<BitbucketApiResponse<PullRequest>>(
+        `${this.REPOSITORIES_URL}/${this.appStore.queryParams['workspace']()}/${repository}/pullrequests`,
+        {
+          headers: this.getHeaders(this.appStore.queryParams['access_token']()),
+          params: queryParams
         }
       ),
-      (this.allAreInsideDateWindow<PullRequest>).bind(this, dateForQuery, this.isPullRequestInsideDateWindow)
+      takeWhile, queryParams
     ).pipe(map((pullRequests) => pullRequests.filter(pullRequest => this.isPullRequestInsideDateWindow(pullRequest, dateForQuery!))))
   }
 
