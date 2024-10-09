@@ -1,9 +1,9 @@
 <canvas
   baseChart
-  [data]="pullRequestsStore.pullRequestsLastUpdated()"
+  [data]="pullRequestsStore.pullRequestsLastUpdatedChartData()"
   [options]="
     pullRequestsStore.getOptions(
-      'Days Since Pull Requests Were Last Updated',
+      'Days Since Open Pull Requests Were Last Updated',
       'Days Since Last Updated',
       'Number Of Pull Requests'
     )

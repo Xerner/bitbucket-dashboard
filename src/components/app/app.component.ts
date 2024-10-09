@@ -13,7 +13,7 @@ import { GitCommitsComponent } from '../dashboard/git-commits/git-commits.compon
 import { MatTabsModule } from '@angular/material/tabs';
 import { InputsService } from '../../services/inputs.service';
 import { Feature } from '../../models/Feature';
-import { PullRequestCounterComponent } from '../dashboard/pull-requests/pull-request-counter/pull-request-counter.component';
+import { OpenPullRequestCounterComponent } from '../dashboard/pull-requests/open-pull-request-counter/open-pull-request-counter.component';
 import { PrAgeChartComponent } from '../dashboard/pull-requests/pr-age-chart/pr-age-chart.component';
 import { PrLastUpdatedChartComponent } from '../dashboard/pull-requests/pr-last-updated-chart/pr-last-updated-chart.component';
 import { PrParticipationChartComponent } from '../dashboard/pull-requests/pr-participation-chart/pr-participation-chart.component';
@@ -21,6 +21,7 @@ import { PrSubmittedByAuthorChartComponent } from '../dashboard/pull-requests/pr
 import { PullRequestTableComponent } from '../dashboard/pull-requests/pull-request-table/pull-request-table.component';
 import { FeatureGroup } from '../../models/FeatureGroup';
 import { Views } from '../../models/Views';
+import { LastUpdatedPullRequestCounterComponent } from '../dashboard/pull-requests/last-updated-pull-request-counter/last-updated-pull-request-counter.component';
 
 @Component({
   selector: 'app-root',
@@ -35,7 +36,8 @@ import { Views } from '../../models/Views';
     MatProgressBarModule,
     GitCommitsComponent,
     MatTabsModule,
-    PullRequestCounterComponent,
+    OpenPullRequestCounterComponent,
+    LastUpdatedPullRequestCounterComponent,
     PullRequestTableComponent,
     PrLastUpdatedChartComponent,
     PrAgeChartComponent,

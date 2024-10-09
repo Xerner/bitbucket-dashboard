@@ -7,6 +7,9 @@ import { PULL_REQUEST_STATES } from '../services/bitbucket-api.service';
 import { PersonnelStore } from './personnel.store.service';
 import { Person } from '../models/Person';
 import { AnonymityService } from '../services/AnonymityService.service';
+import { DateTime } from 'luxon';
+import { AppStore, QueryParamKey } from './app.store.service';
+import { DatesService } from '../services/dates.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +18,17 @@ export class PullRequestsStore {
   readonly MIN_LABEL_COUNT = 7;
 
   pullRequests = signal<PullRequest[] | null>(null);
+  pullRequestsWithinDateRange = computed<PullRequest[] | null>(() => {
+    var pullRequests = this.pullRequests();
+    if (pullRequests == null) {
+      return null;
+    }
+    var dateForQuery = this.datesService.getDateFromDateWindowForQuery(this.appStore.queryParams[QueryParamKey.pullRequestDaysWindow]());
+    if (dateForQuery == null) {
+      return pullRequests;
+    }
+    return pullRequests.filter(pullRequest => this.datesService.isPullRequestInsideDateWindow(pullRequest, dateForQuery!));
+  });
   openPullRequests = computed(() => {
     var pullRequests = this.pullRequests();
     if (pullRequests == null) {
@@ -33,13 +47,17 @@ export class PullRequestsStore {
     return filteredPullRequests;
   });
   pullRequestsAges = computed<ChartData<keyof ChartTypeRegistry, number[], string>>(this.getAgesChartData.bind(this));
-  pullRequestsLastUpdated = computed<ChartData<keyof ChartTypeRegistry, number[], string>>(this.getLastUpdatedChartData.bind(this));
+  pullRequestsLastUpdatedChartData = computed<ChartData<keyof ChartTypeRegistry, number[], string>>(this.getLastUpdatedChartData.bind(this));
+  pullRequestsParticipationChartData = computed<ChartData<keyof ChartTypeRegistry, number[], string>>(this.getParticipatedByAuthorChartData.bind(this));
+  pullRequestsSubmittedByAuthorChartData = computed<ChartData<keyof ChartTypeRegistry, number[], string>>(this.getSubmittedByAuthorChartData.bind(this));
 
   constructor(
     private dashboardService: DashboardService,
     private pullRequestService: PullRequestsService,
     private personnelStore: PersonnelStore,
     private anonymityService: AnonymityService,
+    private appStore: AppStore,
+    private datesService: DatesService
   ) { }
 
   getOptions(chartTitle: string, xAxisTitle: string, yAxisTitle: string): ChartOptions<keyof ChartTypeRegistry> {
@@ -139,7 +157,7 @@ export class PullRequestsStore {
   }
 
   getSubmittedByAuthorChartData() {
-    var data = this.pullRequests();
+    var data = this.pullRequestsWithinDateRange();
     var personnel = this.personnelStore.personnel();
     var chartDataset = this.dashboardService.getChartDataTemplate<number>("Count");
     if (data == null || data.length == 0) {
@@ -164,7 +182,7 @@ export class PullRequestsStore {
   }
 
   getParticipatedByAuthorChartData() {
-    var data = this.pullRequests();
+    var data = this.pullRequestsWithinDateRange();
     var personnel = this.personnelStore.personnel();
     var chartDataset = this.dashboardService.getChartDataTemplate<number>("Count");
     if (data == null || data.length == 0) {

@@ -4,24 +4,17 @@ import { PullRequestsStore } from '../../../../stores/pull-requests.store.servic
 import { AppStore, QueryParamKey } from '../../../../stores/app.store.service';
 
 @Component({
-  selector: 'app-pull-request-counter',
+  selector: 'app-last-updated-pull-request-counter',
   standalone: true,
   imports: [
     CommonModule,
   ],
-  templateUrl: './pull-request-counter.component.html',
+  templateUrl: './last-updated-pull-request-counter.component.html',
 })
-export class PullRequestCounterComponent {
+export class LastUpdatedPullRequestCounterComponent {
   QueryParamKey = QueryParamKey
-  allPullRequestsCount = computed(() => {
-    var pullRequests = this.pullRequestsStore.pullRequests()
-    if (pullRequests == null) {
-      return 0;
-    }
-    return pullRequests.length;
-  })
-  openPullRequestsCount = computed(() => {
-    var pullRequests = this.pullRequestsStore.openPullRequests()
+  pullRequestsWithinDateRangeCount = computed(() => {
+    var pullRequests = this.pullRequestsStore.pullRequestsWithinDateRange()
     if (pullRequests == null) {
       return 0;
     }

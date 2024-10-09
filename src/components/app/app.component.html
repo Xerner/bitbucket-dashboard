@@ -48,21 +48,33 @@
   <div class="grow flex flex-col">
     @if (hasFeature(Features.GitCommitHistory)) {
     <app-git-commits></app-git-commits>
-    } @if (hasFeatureInFeatureGroup(FeatureGroups.PullRequests)) {
-    <app-pull-request-counter></app-pull-request-counter>
-    } @if (hasFeatureInFeatureGroup(FeatureGroups.PullRequestCharts)) {
-    <div class="grow grid grid-cols-2">
-      @if (hasFeature(Features.PullRequestAgeChart)) {
-      <app-pr-age-chart></app-pr-age-chart>
-      } @if (hasFeature(Features.PullRequestLastUpdatedChart)) {
-      <app-pr-last-updated-chart></app-pr-last-updated-chart>
-      } @if (hasFeature(Features.PullRequestParticipationChart)) {
-      <app-pr-participation-chart></app-pr-participation-chart>
-      } @if (hasFeature(Features.PullRequestSubmittedChart)) {
-      <app-pr-submitted-by-author-chart></app-pr-submitted-by-author-chart>
+    } 
+    
+    @if (hasFeatureInFeatureGroup(FeatureGroups.PullRequestCharts)) { 
+      @if (hasFeature(Features.PullRequestParticipationChart) || hasFeature(Features.PullRequestSubmittedChart)) {
+      <div class="grow grid grid-cols-2">
+        <app-last-updated-pull-request-counter class="col-span-2"></app-last-updated-pull-request-counter>
+        @if (hasFeature(Features.PullRequestParticipationChart)) {
+        <app-pr-participation-chart></app-pr-participation-chart>
+        } @if (hasFeature(Features.PullRequestSubmittedChart)) {
+        <app-pr-submitted-by-author-chart></app-pr-submitted-by-author-chart>
+        }
+      </div>
       }
-    </div>
-    } @if (hasFeature(Features.OpenPullRequestTable)) {
+
+      @if (hasFeature(Features.PullRequestAgeChart) || hasFeature(Features.PullRequestLastUpdatedChart)) {
+      <div class="grow grid grid-cols-2">
+        <app-open-pull-request-counter class="col-span-2"></app-open-pull-request-counter>
+        @if (hasFeature(Features.PullRequestAgeChart)) {
+        <app-pr-age-chart></app-pr-age-chart>
+        } @if (hasFeature(Features.PullRequestLastUpdatedChart)) {
+        <app-pr-last-updated-chart></app-pr-last-updated-chart>
+        }
+      </div>
+      }
+    } 
+    
+    @if (hasFeature(Features.OpenPullRequestTable)) {
     <app-pull-request-table></app-pull-request-table>
     }
   </div>

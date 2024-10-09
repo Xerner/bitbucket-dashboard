@@ -1,6 +1,6 @@
 <canvas
   baseChart
-  [data]="pullRequestsStore.getSubmittedByAuthorChartData()"
+  [data]="pullRequestsStore.pullRequestsSubmittedByAuthorChartData()"
   [options]="
     pullRequestsStore.getOptions(
       'Submitted Pull Requests By Author',

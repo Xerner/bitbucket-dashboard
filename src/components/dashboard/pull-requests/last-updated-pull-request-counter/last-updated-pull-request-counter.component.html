@@ -1,0 +1,14 @@
+<div class="flex justify-between border-y bg-slate-50 px-3 py-1">
+  <div class="font-medium font-2xl">Pull Requests</div>
+  <div
+    [ngClass]="{
+      'text-right': true,
+      'italic text-slate-400': pullRequestsWithinDateRangeCount() == 0
+    }"
+  >
+    showing {{ pullRequestsWithinDateRangeCount() }} pull requests that were updated within
+    the last
+    {{ appStore.queryParams[QueryParamKey.pullRequestDaysWindow]() }}
+    days
+  </div>
+</div>

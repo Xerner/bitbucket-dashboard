@@ -8,6 +8,7 @@ import { DateTime } from "luxon";
 import { Project } from "../models/bitbucket/Project";
 import { Commit } from "../models/bitbucket/Commit";
 import { PullRequest } from "../models/bitbucket/PullRequest";
+import { DatesService } from "./dates.service";
 
 export enum PULL_REQUEST_STATES {
   OPEN = "OPEN",
@@ -26,7 +27,8 @@ export class BitbucketAPI {
 
   constructor(
     private http: HttpClient,
-    private appStore: AppStore
+    private appStore: AppStore,
+    private datesService: DatesService,
   ) { }
 
   getAllPages<T>(entryObservable: Observable<BitbucketApiResponse<T>>, takeWhile: ((item: T[]) => boolean) | null = null, queryParams: HttpParams | {} = {}, count = 0) {
@@ -119,11 +121,11 @@ export class BitbucketAPI {
     Object.values(PULL_REQUEST_STATES).forEach(state => {
       queryParams = queryParams.append("state", state)
     })
-    var dateForQuery = this.getDateFromDateWindowForQuery(this.appStore.queryParams[QueryParamKey.pullRequestDaysWindow]());
+    var dateForQuery = this.datesService.getDateFromDateWindowForQuery(this.appStore.queryParams[QueryParamKey.pullRequestDaysWindow]());
     if (dateForQuery == null) {
       return of([]);
     }
-    var takeWhile = (this.allAreInsideDateWindow<PullRequest>).bind(this, dateForQuery!, this.isPullRequestInsideDateWindow);
+    var takeWhile = (this.allAreInsideDateWindow<PullRequest>).bind(this, dateForQuery!, this.datesService.isPullRequestInsideDateWindow);
     return this.getAllPages(
       this.http.get<BitbucketApiResponse<PullRequest>>(
         `${this.REPOSITORIES_URL}/${this.appStore.queryParams['workspace']()}/${repository}/pullrequests`,
@@ -133,7 +135,7 @@ export class BitbucketAPI {
         }
       ),
       takeWhile, queryParams
-    ).pipe(map((pullRequests) => pullRequests.filter(pullRequest => this.isPullRequestInsideDateWindow(pullRequest, dateForQuery!))))
+    ).pipe(map((pullRequests) => pullRequests.filter(pullRequest => this.datesService.isPullRequestInsideDateWindow(pullRequest, dateForQuery!))))
   }
 
   getRepositories(project: string) {
@@ -147,7 +149,7 @@ export class BitbucketAPI {
   }
 
   getCommits(repository: string) {
-    var dateForQuery = this.getDateFromDateWindowForQuery(this.appStore.queryParams[QueryParamKey.commitDaysWindow]());
+    var dateForQuery = this.datesService.getDateFromDateWindowForQuery(this.appStore.queryParams[QueryParamKey.commitDaysWindow]());
     if (dateForQuery == null) {
       return [];
     }
@@ -158,8 +160,8 @@ export class BitbucketAPI {
           headers: this.getHeaders(this.appStore.queryParams['access_token']())
         }
       ),
-      (this.allAreInsideDateWindow<Commit>).bind(this, dateForQuery, this.isCommitInsideDateWindow)
-    ).pipe(map((commits) => commits.filter(commit => this.isCommitInsideDateWindow(commit, dateForQuery!))))
+      (this.allAreInsideDateWindow<Commit>).bind(this, dateForQuery, this.datesService.isCommitInsideDateWindow)
+    ).pipe(map((commits) => commits.filter(commit => this.datesService.isCommitInsideDateWindow(commit, dateForQuery!))))
   }
 
   //#endregion
@@ -171,14 +173,6 @@ export class BitbucketAPI {
     return allCommitsAreInsideDateWindow
   }
 
-  isCommitInsideDateWindow(commit: Commit, dateWindow: DateTime) {
-    return DateTime.fromISO(commit.date) > dateWindow;
-  }
-
-  isPullRequestInsideDateWindow(pullRequest: PullRequest, dateWindow: DateTime) {
-    return DateTime.fromISO(pullRequest.created_on) > dateWindow;
-  }
-
   getHeaders(token: string | null): HttpHeaders | { [header: string]: string | string[]; } {
     return {
       "Authorization": `Bearer ${token}`,
@@ -188,13 +182,6 @@ export class BitbucketAPI {
 
   getTotalPages<T>(response: BitbucketApiResponse<T>) {
     return response.page * (response.page)
-  }
-
-  private getDateFromDateWindowForQuery(daysWindow: number | null) {
-    if (daysWindow == null) {
-      return null; // do not send a request to retrieve all commits without filtering them by date (or some other means)
-    }
-    return DateTime.now().toUTC().startOf('day').minus({ 'days': daysWindow - 1 });
   }
 
   //#endregion
