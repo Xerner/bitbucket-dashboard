@@ -165,7 +165,7 @@ export class PullRequestsStore {
     }
     var authorCounts: [Person, number][] = []
     data.forEach(pullRequest => {
-      var person = this.personnelStore.getPersonByName(pullRequest.author.display_name);
+      var person = this.personnelStore.getPersonByUser(pullRequest.author);
       var count = authorCounts.find(ageCount_ => ageCount_[0] == person)
       if (count == undefined) {
         count = [person, 0]
@@ -190,9 +190,9 @@ export class PullRequestsStore {
     }
     var participationCounts: [Person, number][] = []
     data.forEach(pullRequest => {
-      var person = this.personnelStore.getPersonByName(pullRequest.author.display_name);
+      var person = this.personnelStore.getPersonByUser(pullRequest.author);
       pullRequest.participants.forEach(participant => {
-        var participantPerson = this.personnelStore.getPersonByName(participant.user.display_name);
+        var participantPerson = this.personnelStore.getPersonByUser(participant.user);
         if (person == participantPerson) {
           return;
         }

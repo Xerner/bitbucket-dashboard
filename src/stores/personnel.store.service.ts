@@ -3,6 +3,7 @@ import { Commit } from '../models/bitbucket/Commit';
 import { Person } from '../models/Person';
 import { Author } from '../models/bitbucket/Author';
 import { PullRequest } from '../models/bitbucket/PullRequest';
+import { User } from '../models/bitbucket/User';
 
 @Injectable({ providedIn: 'root' })
 export class PersonnelStore {
@@ -11,16 +12,19 @@ export class PersonnelStore {
   constructor() { }
 
   upsertPersonnelFromCommits(commits: Commit[]) {
-    commits.forEach((commit) => this.upsertAuthorIntoAliases(commit.author))
+    var personnel = this.personnel();
+    commits.forEach((commit) => this.upsertAuthorIntoAliases(commit.author, personnel))
+    this.personnel.set(personnel)
   }
 
   upsertPersonnelFromPullRequests(pullRequests: PullRequest[]) {
+    var personnel = this.personnel();
     pullRequests.forEach((pullRequest) => {
       var author: Author = {
         raw: this.stripName(pullRequest.author.display_name),
         user: pullRequest.author
       }
-      this.upsertAuthorIntoAliases(author);
+      this.upsertAuthorIntoAliases(author, personnel);
     })
     pullRequests.forEach(pullRequest => {
       pullRequest.participants.forEach(participant => {
@@ -28,38 +32,55 @@ export class PersonnelStore {
           raw: this.stripName(participant.user.display_name),
           user: participant.user
         }
-        this.upsertAuthorIntoAliases(author);
+        this.upsertAuthorIntoAliases(author, personnel);
       })
     })
+    this.personnel.set(personnel)
   }
 
-  upsertAuthorIntoAliases(author: Author): Person {
-    var personnel = this.personnel();
-    if (author.user === undefined) {
-      var username = this.stripName(author.raw);
-    } else {
-      var username = this.stripName(author.user.display_name);
-    }
-    var person = personnel.find(personnel_ => personnel_.name == username || personnel_.aliases.includes(username))
+  upsertAuthorIntoAliases(author: Author, personnel: Person[]): void {
+    var username = this.getUsernameFromAuthor(author);
+    var person = personnel.find(personnel_ => this.doesPersonnelGoByName(personnel_, username))
     if (person == undefined) {
       person = { name: username, aliases: [] };
       personnel.push(person)
     }
-    return person;
   }
 
   getPersonByGitAuthor(author: Author): Person {
-    return this.getPersonByName(author.raw);
+    var username = this.getUsernameFromAuthor(author);
+    return this.getPersonByName(username);
+  }
+
+  getPersonByUser(user: User): Person {
+    var username = this.getUsernameFromUser(user);
+    return this.getPersonByName(username);
   }
 
   getPersonByName(name: string): Person {
     var name = this.stripName(name);
-    var person = this.personnel().find(person_ => person_.name == name || person_.aliases.includes(name))
+    var person = this.personnel().find(personnel_ => this.doesPersonnelGoByName(personnel_, name));
     if (person == undefined) {
       console.error("Author not found in aliases, please update author aliases on author fetch for proper state management. Updating is undesirable while rendering to prevent signal loops", name, person);
       throw new Error("Author not found in aliases, please update author aliases on author fetch for proper state management. Updating is undesirable while rendering to prevent signal loops");
     }
     return person;
+  }
+
+  doesPersonnelGoByName(personnel: Person, name: string) {
+    return personnel.name == name || personnel.aliases.includes(name);
+  }
+
+  getUsernameFromAuthor(author: Author) {
+    if (author.user === undefined) {
+      return this.stripName(author.raw);
+    } else {
+      return this.getUsernameFromUser(author.user);
+    }
+  }
+
+  getUsernameFromUser(user: User) {
+    return this.stripName(user.display_name);
   }
 
   stripName(name: string) {
