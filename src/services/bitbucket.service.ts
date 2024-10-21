@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { concatMap, mergeAll, map, Observable } from 'rxjs';
 import { PullRequest } from '../models/bitbucket/PullRequest';
-import { AppStore, QueryParamKey } from '../stores/app.store.service';
+import { AppStore } from '../stores/app.store.service';
 import { BitbucketAPI } from './bitbucket-api.service';
 import { PullRequestsStore } from '../stores/pull-requests.store.service';
 import { BitbucketRepository } from '../models/bitbucket/BitbucketRepository';
@@ -9,6 +9,8 @@ import { Commit } from '../models/bitbucket/Commit';
 import { CommitsStore } from '../stores/commits.store.service';
 import { Project } from '../models/bitbucket/Project';
 import { PersonnelStore } from '../stores/personnel.store.service';
+import { GlobalQueryParams } from '../settings/global-query-params';
+import { QueryParamsStore } from '../../repos/common/angular/query-params';
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +19,7 @@ export class BitbucketService {
   constructor(
     private bitbucketAPI: BitbucketAPI,
     private appStore: AppStore,
+    private queryParamsStore: QueryParamsStore<GlobalQueryParams>,
     private personnelStore: PersonnelStore,
     private pullRequestsStore: PullRequestsStore,
     private commitsStore: CommitsStore,
@@ -90,12 +93,12 @@ export class BitbucketService {
   }
 
   getPullRequests() {
-    var repositoriesSharedObservable = this.bitbucketAPI.getRepositories(this.appStore.queryParams[QueryParamKey.project]())
+    var repositoriesSharedObservable = this.bitbucketAPI.getRepositories(this.queryParamsStore.params[GlobalQueryParams.project]()[0])
     return this.getPullRequestsFromRepositories(repositoriesSharedObservable);
   }
 
   getCommits() {
-    var repositoriesSharedObservable = this.bitbucketAPI.getRepositories(this.appStore.queryParams[QueryParamKey.project]())
+    var repositoriesSharedObservable = this.bitbucketAPI.getRepositories(this.queryParamsStore.params[GlobalQueryParams.project]()[0])
     return this.getCommitsFromRepositories(repositoriesSharedObservable);
   }
 }

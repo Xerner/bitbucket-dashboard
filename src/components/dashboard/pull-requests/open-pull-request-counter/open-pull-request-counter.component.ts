@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed } from '@angular/core';
 import { PullRequestsStore } from '../../../../stores/pull-requests.store.service';
-import { AppStore, QueryParamKey } from '../../../../stores/app.store.service';
+import { AppStore } from '../../../../stores/app.store.service';
 
 @Component({
   selector: 'app-open-pull-request-counter',
@@ -12,7 +12,6 @@ import { AppStore, QueryParamKey } from '../../../../stores/app.store.service';
   templateUrl: './open-pull-request-counter.component.html',
 })
 export class OpenPullRequestCounterComponent {
-  QueryParamKey = QueryParamKey
   openPullRequestsCount = computed(() => {
     var pullRequests = this.pullRequestsStore.openPullRequests()
     if (pullRequests == null) {

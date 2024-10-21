@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { AppStore, QueryParamKey } from '../stores/app.store.service';
+import { AppStore } from '../stores/app.store.service';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { debounceTime } from 'rxjs';
 import { BitbucketService } from './bitbucket.service';
@@ -10,19 +10,21 @@ import { PersonnelStore } from '../stores/personnel.store.service';
 import { Feature } from '../models/Feature';
 import { FeatureGroup } from '../models/FeatureGroup';
 import { Views } from '../models/Views';
+import { QueryParamsStore } from '../../repos/common/angular/query-params';
+import { GlobalQueryParams as GlobalQueryParams } from '../settings/global-query-params';
 
 @Injectable({
   providedIn: 'root'
 })
 export class InputsService {
   form = new FormGroup({
-    [QueryParamKey.overdueThreshold]: new FormControl<number | null>(this.appStore.queryParams[QueryParamKey.overdueThreshold]()),
-    [QueryParamKey.commitDaysWindow]: new FormControl<number | null>(this.appStore.queryParams[QueryParamKey.commitDaysWindow]()),
-    [QueryParamKey.pullRequestDaysWindow]: new FormControl<number | null>(this.appStore.queryParams[QueryParamKey.pullRequestDaysWindow]()),
+    [GlobalQueryParams.overdueThreshold]: new FormControl<number | null>(parseInt(this.queryParamStore.params[GlobalQueryParams.overdueThreshold]()[0])),
+    [GlobalQueryParams.commitDaysWindow]: new FormControl<number | null>(parseInt(this.queryParamStore.params[GlobalQueryParams.commitDaysWindow]()[0])),
+    [GlobalQueryParams.pullRequestDaysWindow]: new FormControl<number | null>(parseInt(this.queryParamStore.params[GlobalQueryParams.pullRequestDaysWindow]()[0])),
 
-    [QueryParamKey.workspace]: new FormControl<string | null>(this.appStore.queryParams[QueryParamKey.workspace](), [Validators.required]),
-    [QueryParamKey.project]: new FormControl<string | null>(this.appStore.queryParams[QueryParamKey.project](), [Validators.required]),
-    [QueryParamKey.access_token]: new FormControl<string | null>(this.appStore.queryParams[QueryParamKey.access_token](), [Validators.required]),
+    [GlobalQueryParams.workspace]: new FormControl<string | null>(this.queryParamStore.params[GlobalQueryParams.workspace]()[0], [Validators.required]),
+    [GlobalQueryParams.project]: new FormControl<string | null>(this.queryParamStore.params[GlobalQueryParams.project]()[0], [Validators.required]),
+    [GlobalQueryParams.access_token]: new FormControl<string | null>(this.queryParamStore.params[GlobalQueryParams.access_token]()[0], [Validators.required]),
 
     personnel: new FormControl<File | null>(null),
     anonymity: new FormControl<Person[]>([]),
@@ -37,14 +39,15 @@ export class InputsService {
     private personnelStore: PersonnelStore,
     private route: ActivatedRoute,
     private bitbucketService: BitbucketService,
-    private anonymityService: AnonymityService
+    private anonymityService: AnonymityService,
+    private queryParamStore: QueryParamsStore<GlobalQueryParams>,
   ) {
     // TODO: clean up this cluttered garbage
     this.route.queryParamMap.subscribe(this.parseQueryParams.bind(this))
     // subscruibe all query param controls to query param changes
     // TODO: use new query param service in common-ts
     Object.keys(this.form.controls).forEach((key) => {
-      if (!QueryParamKey.hasOwnProperty(key)) {
+      if (!GlobalQueryParams.hasOwnProperty(key)) {
         return;
       }
       var control = this.form.controls[key as keyof typeof this.form.controls];
@@ -116,27 +119,21 @@ export class InputsService {
   }
 
   subscribeToValueChanges(control: FormControl) {
-    var name = this.getControlName(control);
+    var name = this.getControlName(control) as GlobalQueryParams;
     this.route.queryParamMap.subscribe(params => {
       var queryParam = params.get(name);
-      this.appStore.updateStoredQueryParam(name, queryParam);
-      this.updateControlValue(control, queryParam);
+      if (queryParam != control.value) {
+        control.setValue(queryParam)
+      }
     })
     control.valueChanges.pipe(
       debounceTime(500)
     ).subscribe(value => {
-      this.appStore.updateStoredQueryParam(name, value);
-      this.appStore.updateQueryParam(name, value);
-      if (name === QueryParamKey.workspace) {
+      this.queryParamStore.set(name, value);
+      if (name === GlobalQueryParams.workspace) {
         this.bitbucketService.getProjects(value);
       }
     });
-  }
-
-  updateControlValue(control: FormControl, value: any) {
-    if (value != control.value) {
-      control.setValue(value)
-    }
   }
 
   getControlName(control: FormControl): string {
@@ -153,12 +150,12 @@ export class InputsService {
 
   parseQueryParams(params: ParamMap) {
     // workspace
-    var workspace = params.get(QueryParamKey.workspace);
-    if (workspace != this.appStore.queryParams[QueryParamKey.workspace]()) {
+    var workspace = params.get(GlobalQueryParams.workspace);
+    if (workspace != this.queryParamStore.params[GlobalQueryParams.workspace]()[0]) {
       this.form.controls.workspace.setValue(workspace);
     }
     // overdue threshold
-    var overdueThreshold = params.get(QueryParamKey.overdueThreshold);
+    var overdueThreshold = params.get(GlobalQueryParams.overdueThreshold);
     var overdueThresholdInt: number | null;
     if (typeof overdueThreshold === 'string') {
       overdueThresholdInt = parseInt(overdueThreshold)
@@ -168,7 +165,7 @@ export class InputsService {
     this.form.controls.overdueThreshold.setValue(overdueThresholdInt)
 
     // commit days window
-    var commitDaysWindow = params.get(QueryParamKey.commitDaysWindow);
+    var commitDaysWindow = params.get(GlobalQueryParams.commitDaysWindow);
     var commitDaysWindowInt: number | null;
     if (typeof commitDaysWindow === 'string') {
       commitDaysWindowInt = parseInt(commitDaysWindow)
@@ -178,7 +175,7 @@ export class InputsService {
     this.form.controls.commitDaysWindow.setValue(commitDaysWindowInt)
 
     // pull request days window
-    var pullRequestDaysWindow = params.get(QueryParamKey.pullRequestDaysWindow);
+    var pullRequestDaysWindow = params.get(GlobalQueryParams.pullRequestDaysWindow);
     var pullRequestDaysWindowInt: number | null;
     if (typeof pullRequestDaysWindow === 'string') {
       pullRequestDaysWindowInt = parseInt(pullRequestDaysWindow)

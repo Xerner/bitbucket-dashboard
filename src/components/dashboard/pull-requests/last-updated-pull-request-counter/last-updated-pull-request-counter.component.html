@@ -7,8 +7,6 @@
     }"
   >
     showing {{ pullRequestsWithinDateRangeCount() }} pull requests that were updated within
-    the last
-    {{ appStore.queryParams[QueryParamKey.pullRequestDaysWindow]() }}
-    days
+    the last {{ daysWindow() }} days
   </div>
 </div>

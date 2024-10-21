@@ -1,4 +1,4 @@
-export enum IGlobalQueryParams {
+export enum GlobalQueryParams {
   overdueThreshold = "overdueThreshold",
   commitDaysWindow = "commitDaysWindow",
   pullRequestDaysWindow = "pullRequestDaysWindow",
