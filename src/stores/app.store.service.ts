@@ -1,8 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { computed, Injectable, signal, WritableSignal } from '@angular/core';
+import { computed, Inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Project } from '../models/bitbucket/Project';
 import { Views } from '../models/Views';
+import { QueryParamsStore } from '../../repos/common/angular/query-params';
+import { IGlobalQueryParams } from '../settings/query-param-keys';
 
 export type QueryParamKeyType = QueryParamKey | string;
 export enum QueryParamKey {
@@ -22,7 +24,7 @@ export class AppStore {
   requestCounterWarningThreshold = 500;
   httpErrors = signal<[string, HttpErrorResponse][]>([]);
   projects = signal<Project[]>([])
-  queryParams: { [key: QueryParamKeyType]: WritableSignal<any> } = {
+  queryParams_: { [key: QueryParamKeyType]: WritableSignal<any> } = {
     [QueryParamKey.overdueThreshold]: signal<number | null>(null),
     [QueryParamKey.commitDaysWindow]: signal<number | null>(null),
     [QueryParamKey.pullRequestDaysWindow]: signal<number | null>(null),
@@ -37,8 +39,11 @@ export class AppStore {
 
   constructor(
     private router: Router,
-    private route: ActivatedRoute
-  ) {}
+    private route: ActivatedRoute,
+    private queryParamsStore: QueryParamsStore<IGlobalQueryParams>,
+  ) {
+    var t = queryParamsStore.queryParams.get(IGlobalQueryParams.access_token);
+  }
 
   addError(source: string, error: HttpErrorResponse) {
     var errors = this.httpErrors();

@@ -8,6 +8,8 @@ import { ErrorInterceptor } from './interceptors/error.interceptor';
 import { RequestCounterInterceptor } from './interceptors/request-counter.interceptor';
 import { initializeAppFactory } from './app.initializer';
 import { InputsService } from './services/inputs.service';
+import { provideQueryParams } from '../repos/common/angular/query-params';
+import { IGlobalQueryParams } from './settings/query-param-keys';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -15,6 +17,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimations(),
     provideHttpClient(withInterceptorsFromDi()),
     provideCharts(withDefaultRegisterables()),
+    provideQueryParams(IGlobalQueryParams),
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: RequestCounterInterceptor, multi: true },
     { provide: APP_INITIALIZER, useFactory: initializeAppFactory, deps: [HttpClient, InputsService], multi: true },
