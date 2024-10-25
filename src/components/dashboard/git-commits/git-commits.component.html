@@ -9,7 +9,7 @@
     <span class="italic font-normal"
       >showing commits within the last
       {{
-        appStore.queryParams[QueryParamKey.pullRequestDaysWindow]()
+        queryParamsStore.params[GlobalQueryParams.pullRequestDaysWindow]()
       }}
       days</span
     >
@@ -21,7 +21,7 @@
 <div class="flex flex-wrap gap-3 p-3">
   @for (authorCommits of commitsStore.authorsCommits(); track $index) {
   <app-git-heat-map
-    [daysWindow]="appStore.queryParams[QueryParamKey.commitDaysWindow]()"
+    [daysWindow]="daysWindow()"
     [author]="authorCommits[0]"
     [commits]="authorCommits[1]"
     [isAnonymous]="anonymityService.isAnonymous(authorCommits[0])"

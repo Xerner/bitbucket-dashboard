@@ -7,9 +7,10 @@ import { PULL_REQUEST_STATES } from '../services/bitbucket-api.service';
 import { PersonnelStore } from './personnel.store.service';
 import { Person } from '../models/Person';
 import { AnonymityService } from '../services/AnonymityService.service';
-import { DateTime } from 'luxon';
-import { AppStore, QueryParamKey } from './app.store.service';
+import { AppStore } from './app.store.service';
 import { DatesService } from '../services/dates.service';
+import { GlobalQueryParams } from '../settings/global-query-params';
+import { QueryParamsStore } from '../../repos/common/angular/query-params';
 
 @Injectable({
   providedIn: 'root'
@@ -23,7 +24,8 @@ export class PullRequestsStore {
     if (pullRequests == null) {
       return null;
     }
-    var dateForQuery = this.datesService.getDateFromDateWindowForQuery(this.appStore.queryParams[QueryParamKey.pullRequestDaysWindow]());
+    var daysWindow = parseInt(this.queryParamsStore.params[GlobalQueryParams.pullRequestDaysWindow]()[0]);
+    var dateForQuery = this.datesService.getDateFromDateWindowForQuery(daysWindow);
     if (dateForQuery == null) {
       return pullRequests;
     }
@@ -56,7 +58,7 @@ export class PullRequestsStore {
     private pullRequestService: PullRequestsService,
     private personnelStore: PersonnelStore,
     private anonymityService: AnonymityService,
-    private appStore: AppStore,
+    private queryParamsStore: QueryParamsStore<GlobalQueryParams>,
     private datesService: DatesService
   ) { }
 
