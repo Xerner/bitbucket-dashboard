@@ -1,4 +1,4 @@
-export enum Feature {
+export enum Features {
   PullRequestAgeChart = "PR Age Chart",
   PullRequestLastUpdatedChart = "PR Last Updated Chart",
   PullRequestParticipationChart = "PRs Participated Chart",

@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { SortDirection } from '@angular/material/sort';
 import { PullRequest } from '../models/bitbucket/PullRequest';
 import { DashboardService } from './dashboard.service';
+import { ObjectsExt } from '../../repos/common/library/objects';
 import fuzzysort from 'fuzzysort';
-import { getProperty } from '../library/get-property';
 
 @Injectable({
   providedIn: 'root'
@@ -43,6 +43,6 @@ export class PullRequestsService {
     if (result.score > 0) {
       return result.highlight()
     }
-    return getProperty(keysResult.obj, displayedColumn);
+    return ObjectsExt.getProperty(keysResult.obj, displayedColumn) ?? "";
   }
 }

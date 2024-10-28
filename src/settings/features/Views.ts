@@ -1,4 +1,4 @@
-export enum FeatureGroup {
+export enum Views {
   GitOnly = "Git Only",
   PullRequests = "Pull Requests",
   PullRequestCharts = "Pull Request Charts",

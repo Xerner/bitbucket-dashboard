@@ -20,10 +20,10 @@ import { CodeDialogComponent, ICodeDialogComponent } from './code-dialog/code-di
 import PERSONNEL_JSON_SCHEMA from '../../settings/personnel-json-schema.json'
 import PERSONNEL_JSON_EXAMPLE from '../../settings/personnel-json-example.json'
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { Feature } from '../../models/Feature';
-import { Views } from '../../models/Views';
+import { Features } from '../../settings/features/Features';
 import { QueryParamsStore } from '../../../repos/common/angular/query-params';
 import { GlobalQueryParams } from '../../settings/global-query-params';
+import { Views } from '../../settings/features/Views';
 
 @Component({
   selector: 'app-api-inputs',
@@ -44,8 +44,8 @@ import { GlobalQueryParams } from '../../settings/global-query-params';
   templateUrl: "inputs.component.html",
 })
 export class InputsComponent {
-  Views = Object.keys(Views);
-  Features = Object.entries(Feature);
+  Views = Object.values(Views);
+  Features = Object.entries(Features);
   @ViewChild('filterInput', { static: true })
   filterInput!: ElementRef<HTMLInputElement>;
   isLoadingProjects = signal<boolean>(false);

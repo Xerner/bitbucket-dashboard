@@ -12,16 +12,16 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { GitCommitsComponent } from '../dashboard/git-commits/git-commits.component';
 import { MatTabsModule } from '@angular/material/tabs';
 import { InputsService } from '../../services/inputs.service';
-import { Feature } from '../../models/Feature';
+import { Features } from '../../settings/features/Features';
 import { OpenPullRequestCounterComponent } from '../dashboard/pull-requests/open-pull-request-counter/open-pull-request-counter.component';
 import { PrAgeChartComponent } from '../dashboard/pull-requests/pr-age-chart/pr-age-chart.component';
 import { PrLastUpdatedChartComponent } from '../dashboard/pull-requests/pr-last-updated-chart/pr-last-updated-chart.component';
 import { PrParticipationChartComponent } from '../dashboard/pull-requests/pr-participation-chart/pr-participation-chart.component';
 import { PrSubmittedByAuthorChartComponent } from '../dashboard/pull-requests/pr-submitted-by-author-chart/pr-submitted-by-author-chart.component';
 import { PullRequestTableComponent } from '../dashboard/pull-requests/pull-request-table/pull-request-table.component';
-import { FeatureGroup } from '../../models/FeatureGroup';
-import { Views } from '../../models/Views';
 import { LastUpdatedPullRequestCounterComponent } from '../dashboard/pull-requests/last-updated-pull-request-counter/last-updated-pull-request-counter.component';
+import { Views } from '../../settings/features/Views';
+import { FeatureService } from '../../../repos/common/angular/feature-flags/feature.service';
 
 @Component({
   selector: 'app-root',
@@ -47,35 +47,21 @@ import { LastUpdatedPullRequestCounterComponent } from '../dashboard/pull-reques
   templateUrl: './app.component.html'
 })
 export class AppComponent {
-  Features = Feature;
-  FeatureGroups = FeatureGroup;
+  Features = Features;
+  Views = Views;
 
   constructor(
     matIconRegistry: MatIconRegistry,
     domSanitizer: DomSanitizer,
     protected appStore: AppStore,
     protected inputsService: InputsService,
+    protected featureService: FeatureService<Features, Views>,
   ) {
     matIconRegistry.addSvgIcon("bitbucket", domSanitizer.bypassSecurityTrustResourceUrl("assets/Bitbucket-Logo-blue.svg"))
   }
 
   errorToString(httpErrorResponse: HttpErrorResponse): string {
+    this.inputsService.form.controls.features.value
     return httpErrorResponse.error.error.message
-  }
-
-  hasFeature(feature: Feature) {
-    var features = this.inputsService.form.controls.features.value;
-    if (features == null) {
-      return false;
-    }
-    return features.includes(feature);
-  }
-
-  hasFeatureInFeatureGroup(featureGroup: FeatureGroup) {
-    var features = this.inputsService.form.controls.features.value;
-    if (features == null) {
-      return false;
-    }
-    return features.some(feature => Views[featureGroup].includes(feature));
   }
 }

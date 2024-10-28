@@ -6,11 +6,13 @@ import { BitbucketService } from './bitbucket.service';
 import { Person } from '../models/Person';
 import { AnonymityService } from './AnonymityService.service';
 import { PersonnelStore } from '../stores/personnel.store.service';
-import { Feature } from '../models/Feature';
-import { FeatureGroup } from '../models/FeatureGroup';
-import { Views } from '../models/Views';
+import { Features } from '../settings/features/Features';
 import { QueryParamsStore } from '../../repos/common/angular/query-params';
 import { GlobalQueryParams as GlobalQueryParams } from '../settings/global-query-params';
+import { environment } from '../settings/environment/environment';
+import { Views } from '../settings/features/Views';
+import { FeatureService } from '../../repos/common/angular/feature-flags/feature.service';
+import { FeatureFlags } from '../settings/features/FeatureFlags';
 
 export interface IInputForm {
   overdueThreshold: FormControl<number | null>;
@@ -19,11 +21,11 @@ export interface IInputForm {
   workspace: FormControl<string | null>;
   project: FormControl<string | null>;
   access_token: FormControl<string | null>;
-  personnel: FormControl<File | null>;
-  anonymity: FormControl<Person[]>;
-  isAnonymityEnabled: FormControl<boolean>;
-  view: FormControl<FeatureGroup | null>;
-  features: FormControl<Feature[]>;
+  personnelFile: FormControl<File | null>;
+  anonymity: FormControl<Person[] | null>;
+  isAnonymityEnabled: FormControl<boolean | null>;
+  view: FormControl<Views | null>;
+  features: FormControl<Features[] | null>;
 }
 
 @Injectable({
@@ -38,6 +40,7 @@ export class InputsService {
     private bitbucketService: BitbucketService,
     private anonymityService: AnonymityService,
     private queryParamStore: QueryParamsStore<GlobalQueryParams>,
+    private featureService: FeatureService<Features, Views>,
   ) {
     this.form = this.buildForm();
     // TODO: clean up this cluttered garbage
@@ -52,7 +55,7 @@ export class InputsService {
       this.subscribeToValueChanges(control);
     })
     // personnel
-    this.form.controls.personnel.valueChanges.pipe(
+    this.form.controls.personnelFile.valueChanges.pipe(
       debounceTime(500)
     ).subscribe(file => {
       if (file == null) {
@@ -64,6 +67,8 @@ export class InputsService {
           this.personnelStore.personnel.set(personnel);
         })
     });
+    var file = new File([JSON.stringify(environment.personnel, null, 2)], "personnel.json", { type: "text/json" })
+    this.form.controls.personnelFile.setValue(file);
     // anonymity
     this.form.controls.anonymity.valueChanges.pipe(
       debounceTime(500)
@@ -85,14 +90,18 @@ export class InputsService {
     // view
     this.form.controls.view.valueChanges.subscribe(view => {
       if (view == null) {
-        // this.form.controls.features.setValue([], { "emitEvent": false });
         return;
       }
-      var features = Views[view];
-      this.form.controls.features.setValue(features, { "emitEvent": false });
+      var viewFeatures = this.featureService.views.find(view_ => view_.view == view);
+      this.updateFeatureFlags(viewFeatures == null ? null : viewFeatures.features);
+      if (viewFeatures == null) {
+        return;
+      }
+      this.form.controls.features.setValue(viewFeatures!.features, { "emitEvent": false });
     });
     // features
-    this.form.controls.features.valueChanges.subscribe(features => {
+    this.form.controls.features.valueChanges.subscribe(features => {      
+      this.updateFeatureFlags(features);
       if (features == null) {
         this.form.controls.view.setValue(null);
         return;
@@ -100,10 +109,13 @@ export class InputsService {
       if (features.length === 0) {
         this.form.controls.view.setValue(null);
       }
-      var view: FeatureGroup | null = Object.keys(Views).reduce((accumulator: string | null, view: string) => {
-        var viewFeatures = Views[view as FeatureGroup];
-        var someFeatureDoesNotBelongInView = features.some(feature => viewFeatures.includes(feature) == false);
-        var featuresAreTheSameLength = viewFeatures.length == features.length;
+      var view: Views | null = Object.keys(Views).reduce((accumulator: string | null, view: string) => {
+        var viewFeatures = this.featureService.views.find(view_ => view_.view == view);
+        if (viewFeatures == null) {
+          return accumulator;
+        }
+        var someFeatureDoesNotBelongInView = features.some(feature => viewFeatures!.features.includes(feature) == false);
+        var featuresAreTheSameLength = this.featureService.views.length == features.length;
         if (someFeatureDoesNotBelongInView) {
           return accumulator;
         }
@@ -111,12 +123,22 @@ export class InputsService {
           return view;
         }
         return accumulator;
-      }, null) as FeatureGroup | null;
+      }, null) as Views | null;
       this.form.controls.view.setValue(view);
     });
   }
 
-  buildForm(): FormGroup {
+  updateFeatureFlags(features: Features[] | null) {
+    if (features == null) {
+      FeatureFlags.forEach(featureFlag => featureFlag.enabled = false);
+      return;
+    }
+    FeatureFlags.forEach(featureFlag => {
+      featureFlag.enabled = features.includes(featureFlag.feature);
+    });
+  }
+
+  buildForm(): FormGroup<IInputForm> {
     return new FormGroup({
       [GlobalQueryParams.overdueThreshold]: new FormControl<number | null>(parseInt(this.queryParamStore.params[GlobalQueryParams.overdueThreshold]()[0])),
       [GlobalQueryParams.commitDaysWindow]: new FormControl<number | null>(parseInt(this.queryParamStore.params[GlobalQueryParams.commitDaysWindow]()[0])),
@@ -126,12 +148,12 @@ export class InputsService {
       [GlobalQueryParams.project]: new FormControl<string | null>(this.queryParamStore.params[GlobalQueryParams.project]()[0], [Validators.required]),
       [GlobalQueryParams.access_token]: new FormControl<string | null>(this.queryParamStore.params[GlobalQueryParams.access_token]()[0], [Validators.required]),
   
-      personnel: new FormControl<File | null>(null),
+      personnelFile: new FormControl<File | null>(null),
       anonymity: new FormControl<Person[]>([]),
       isAnonymityEnabled: new FormControl<boolean>(true),
   
-      view: new FormControl<FeatureGroup | null>(null),
-      features: new FormControl<Feature[]>([]),
+      view: new FormControl<Views | null>(null),
+      features: new FormControl<Features[]>([]),
     });
   }
 

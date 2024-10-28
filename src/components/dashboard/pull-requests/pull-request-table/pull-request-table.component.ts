@@ -7,10 +7,10 @@ import { PullRequestsService } from '../../../../services/pull-requests.service'
 import { PullRequestsStore } from '../../../../stores/pull-requests.store.service';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { fromEvent, tap, debounceTime } from 'rxjs';
-import { deepClone } from '../../../../library/deep-clone';
 import { PullRequest } from '../../../../models/bitbucket/PullRequest';
 import { DomSanitizer } from '@angular/platform-browser';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { ObjectsExt } from '../../../../../repos/common/library/objects';
 
 @Component({
   selector: 'app-pull-request-table',
@@ -53,7 +53,7 @@ export class PullRequestTableComponent {
     pullRequests.sort((pr1, pr2) => {
       return this.pullRequestService.sorts[sort.active](pr1, pr2, sort.direction)
     });
-    this.pullRequestsStore.pullRequests.set(deepClone(pullRequests));
+    this.pullRequestsStore.pullRequests.set(ObjectsExt.deepClone(pullRequests));
   }
 
   applyFilter(event: Event) {
