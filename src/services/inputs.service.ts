@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { AppStore } from '../stores/app.store.service';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { debounceTime } from 'rxjs';
 import { BitbucketService } from './bitbucket.service';
@@ -13,35 +12,34 @@ import { Views } from '../models/Views';
 import { QueryParamsStore } from '../../repos/common/angular/query-params';
 import { GlobalQueryParams as GlobalQueryParams } from '../settings/global-query-params';
 
+export interface IInputForm {
+  overdueThreshold: FormControl<number | null>;
+  commitDaysWindow: FormControl<number | null>;
+  pullRequestDaysWindow: FormControl<number | null>;
+  workspace: FormControl<string | null>;
+  project: FormControl<string | null>;
+  access_token: FormControl<string | null>;
+  personnel: FormControl<File | null>;
+  anonymity: FormControl<Person[]>;
+  isAnonymityEnabled: FormControl<boolean>;
+  view: FormControl<FeatureGroup | null>;
+  features: FormControl<Feature[]>;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class InputsService {
-  form = new FormGroup({
-    [GlobalQueryParams.overdueThreshold]: new FormControl<number | null>(parseInt(this.queryParamStore.params[GlobalQueryParams.overdueThreshold]()[0])),
-    [GlobalQueryParams.commitDaysWindow]: new FormControl<number | null>(parseInt(this.queryParamStore.params[GlobalQueryParams.commitDaysWindow]()[0])),
-    [GlobalQueryParams.pullRequestDaysWindow]: new FormControl<number | null>(parseInt(this.queryParamStore.params[GlobalQueryParams.pullRequestDaysWindow]()[0])),
-
-    [GlobalQueryParams.workspace]: new FormControl<string | null>(this.queryParamStore.params[GlobalQueryParams.workspace]()[0], [Validators.required]),
-    [GlobalQueryParams.project]: new FormControl<string | null>(this.queryParamStore.params[GlobalQueryParams.project]()[0], [Validators.required]),
-    [GlobalQueryParams.access_token]: new FormControl<string | null>(this.queryParamStore.params[GlobalQueryParams.access_token]()[0], [Validators.required]),
-
-    personnel: new FormControl<File | null>(null),
-    anonymity: new FormControl<Person[]>([]),
-    isAnonymityEnabled: new FormControl<boolean>(true),
-
-    view: new FormControl<FeatureGroup | null>(null),
-    features: new FormControl<Feature[]>([]),
-  });
+  form: FormGroup<IInputForm>;
 
   constructor(
-    private appStore: AppStore,
     private personnelStore: PersonnelStore,
     private route: ActivatedRoute,
     private bitbucketService: BitbucketService,
     private anonymityService: AnonymityService,
     private queryParamStore: QueryParamsStore<GlobalQueryParams>,
   ) {
+    this.form = this.buildForm();
     // TODO: clean up this cluttered garbage
     this.route.queryParamMap.subscribe(this.parseQueryParams.bind(this))
     // subscruibe all query param controls to query param changes
@@ -115,6 +113,25 @@ export class InputsService {
         return accumulator;
       }, null) as FeatureGroup | null;
       this.form.controls.view.setValue(view);
+    });
+  }
+
+  buildForm(): FormGroup {
+    return new FormGroup({
+      [GlobalQueryParams.overdueThreshold]: new FormControl<number | null>(parseInt(this.queryParamStore.params[GlobalQueryParams.overdueThreshold]()[0])),
+      [GlobalQueryParams.commitDaysWindow]: new FormControl<number | null>(parseInt(this.queryParamStore.params[GlobalQueryParams.commitDaysWindow]()[0])),
+      [GlobalQueryParams.pullRequestDaysWindow]: new FormControl<number | null>(parseInt(this.queryParamStore.params[GlobalQueryParams.pullRequestDaysWindow]()[0])),
+  
+      [GlobalQueryParams.workspace]: new FormControl<string | null>(this.queryParamStore.params[GlobalQueryParams.workspace]()[0], [Validators.required]),
+      [GlobalQueryParams.project]: new FormControl<string | null>(this.queryParamStore.params[GlobalQueryParams.project]()[0], [Validators.required]),
+      [GlobalQueryParams.access_token]: new FormControl<string | null>(this.queryParamStore.params[GlobalQueryParams.access_token]()[0], [Validators.required]),
+  
+      personnel: new FormControl<File | null>(null),
+      anonymity: new FormControl<Person[]>([]),
+      isAnonymityEnabled: new FormControl<boolean>(true),
+  
+      view: new FormControl<FeatureGroup | null>(null),
+      features: new FormControl<Feature[]>([]),
     });
   }
 

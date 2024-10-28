@@ -2,14 +2,15 @@ import { Injectable } from '@angular/core';
 import { SortDirection } from '@angular/material/sort';
 import { ChartData, ChartTypeRegistry } from 'chart.js';
 import { DateTime } from 'luxon';
-import { AppStore } from '../stores/app.store.service';
+import { GlobalQueryParams } from '../settings/global-query-params';
+import { QueryParamsStore } from '../../repos/common/angular/query-params';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DashboardService {
   constructor(
-    private appStore: AppStore,
+    private queryParams: QueryParamsStore<GlobalQueryParams>
   ) { }
 
   getChartDataTemplate<T>(datasetLabel: string): ChartData<keyof ChartTypeRegistry, T[], string> {
@@ -50,7 +51,7 @@ export class DashboardService {
   }
 
   isAgeOverThreshold(age: number) {
-    var overdueThreshold = this.appStore.queryParams['overdueThreshold']();
+    var overdueThreshold = parseInt(this.queryParams.params[GlobalQueryParams.overdueThreshold]()[0]);
     if (overdueThreshold == null) {
       return false;
     }
