@@ -22,6 +22,7 @@ import { PullRequestTableComponent } from '../dashboard/pull-requests/pull-reque
 import { LastUpdatedPullRequestCounterComponent } from '../dashboard/pull-requests/last-updated-pull-request-counter/last-updated-pull-request-counter.component';
 import { Views } from '../../settings/features/Views';
 import { FeatureService } from '../../../repos/common/angular/feature-flags/feature.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-root',
@@ -36,6 +37,7 @@ import { FeatureService } from '../../../repos/common/angular/feature-flags/feat
     MatProgressBarModule,
     GitCommitsComponent,
     MatTabsModule,
+    MatTooltipModule,
     OpenPullRequestCounterComponent,
     LastUpdatedPullRequestCounterComponent,
     PullRequestTableComponent,
