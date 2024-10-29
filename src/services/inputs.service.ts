@@ -92,7 +92,7 @@ export class InputsService {
       if (view == null) {
         return;
       }
-      var viewFeatures = this.featureService.views.find(view_ => view_.view == view);
+      var viewFeatures = this.featureService.views[view];
       this.updateFeatureFlags(viewFeatures == null ? null : viewFeatures.features);
       if (viewFeatures == null) {
         return;
@@ -110,12 +110,12 @@ export class InputsService {
         this.form.controls.view.setValue(null);
       }
       var view: Views | null = Object.keys(Views).reduce((accumulator: string | null, view: string) => {
-        var viewFeatures = this.featureService.views.find(view_ => view_.view == view);
+        var viewFeatures = this.featureService.views[view as Views];
         if (viewFeatures == null) {
           return accumulator;
         }
         var someFeatureDoesNotBelongInView = features.some(feature => viewFeatures!.features.includes(feature) == false);
-        var featuresAreTheSameLength = this.featureService.views.length == features.length;
+        var featuresAreTheSameLength = Object.keys(this.featureService.views).length == features.length;
         if (someFeatureDoesNotBelongInView) {
           return accumulator;
         }
@@ -136,17 +136,18 @@ export class InputsService {
     FeatureFlags.forEach(featureFlag => {
       featureFlag.enabled = features.includes(featureFlag.feature);
     });
+    this.featureService.updateFeatureFlags(FeatureFlags);
   }
 
   buildForm(): FormGroup<IInputForm> {
     return new FormGroup({
-      [GlobalQueryParams.overdueThreshold]: new FormControl<number | null>(parseInt(this.queryParamStore.params[GlobalQueryParams.overdueThreshold]()[0])),
-      [GlobalQueryParams.commitDaysWindow]: new FormControl<number | null>(parseInt(this.queryParamStore.params[GlobalQueryParams.commitDaysWindow]()[0])),
-      [GlobalQueryParams.pullRequestDaysWindow]: new FormControl<number | null>(parseInt(this.queryParamStore.params[GlobalQueryParams.pullRequestDaysWindow]()[0])),
+      [GlobalQueryParams.overdueThreshold]: new FormControl<number | null>(parseInt(this.queryParamStore.params.overdueThreshold()[0])),
+      [GlobalQueryParams.commitDaysWindow]: new FormControl<number | null>(parseInt(this.queryParamStore.params.commitDaysWindow()[0])),
+      [GlobalQueryParams.pullRequestDaysWindow]: new FormControl<number | null>(parseInt(this.queryParamStore.params.pullRequestDaysWindow()[0])),
   
-      [GlobalQueryParams.workspace]: new FormControl<string | null>(this.queryParamStore.params[GlobalQueryParams.workspace]()[0], [Validators.required]),
-      [GlobalQueryParams.project]: new FormControl<string | null>(this.queryParamStore.params[GlobalQueryParams.project]()[0], [Validators.required]),
-      [GlobalQueryParams.access_token]: new FormControl<string | null>(this.queryParamStore.params[GlobalQueryParams.access_token]()[0], [Validators.required]),
+      [GlobalQueryParams.workspace]: new FormControl<string | null>(this.queryParamStore.params.workspace()[0], [Validators.required]),
+      [GlobalQueryParams.project]: new FormControl<string | null>(this.queryParamStore.params.project()[0], [Validators.required]),
+      [GlobalQueryParams.access_token]: new FormControl<string | null>(this.queryParamStore.params.access_token()[0], [Validators.required]),
   
       personnelFile: new FormControl<File | null>(null),
       anonymity: new FormControl<Person[]>([]),
@@ -190,7 +191,7 @@ export class InputsService {
   parseQueryParams(params: ParamMap) {
     // workspace
     var workspace = params.get(GlobalQueryParams.workspace);
-    if (workspace != this.queryParamStore.params[GlobalQueryParams.workspace]()[0]) {
+    if (workspace != this.queryParamStore.params.workspace()[0]) {
       this.form.controls.workspace.setValue(workspace);
     }
     // overdue threshold

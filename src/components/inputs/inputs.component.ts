@@ -64,7 +64,7 @@ export class InputsComponent {
     if (!this.inputsService.form.valid || this.appStore.itemsLoading()) {
       return;
     }
-    var repositoriesSharedObservable = this.bitbucketApi.getRepositories(this.queryParamsStore.params[GlobalQueryParams.project]()[0]).pipe(share())
+    var repositoriesSharedObservable = this.bitbucketApi.getRepositories(this.queryParamsStore.params.project()[0]).pipe(share())
     this.bitbucketService.getPullRequestsFromRepositories(repositoriesSharedObservable);
     this.bitbucketService.getCommitsFromRepositories(repositoriesSharedObservable);
   }

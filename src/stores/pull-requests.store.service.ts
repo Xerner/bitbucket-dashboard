@@ -24,7 +24,7 @@ export class PullRequestsStore {
     if (pullRequests == null) {
       return null;
     }
-    var daysWindow = parseInt(this.queryParamsStore.params[GlobalQueryParams.pullRequestDaysWindow]()[0]);
+    var daysWindow = parseInt(this.queryParamsStore.params.pullRequestDaysWindow()[0]);
     var dateForQuery = this.datesService.getDateFromDateWindowForQuery(daysWindow);
     if (dateForQuery == null) {
       return pullRequests;

@@ -51,7 +51,7 @@ export class DashboardService {
   }
 
   isAgeOverThreshold(age: number) {
-    var overdueThreshold = parseInt(this.queryParams.params[GlobalQueryParams.overdueThreshold]()[0]);
+    var overdueThreshold = parseInt(this.queryParams.params.overdueThreshold()[0]);
     if (overdueThreshold == null) {
       return false;
     }

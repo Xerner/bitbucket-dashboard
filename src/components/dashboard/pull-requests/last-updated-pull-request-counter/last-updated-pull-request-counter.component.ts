@@ -15,7 +15,7 @@ import { QueryParamsStore } from '../../../../../repos/common/angular/query-para
 })
 export class LastUpdatedPullRequestCounterComponent {
   GlobalQueryParams = GlobalQueryParams
-  daysWindow = computed(() => parseInt(this.queryParamsStore.params[GlobalQueryParams.pullRequestDaysWindow]()[0]))
+  daysWindow = computed(() => parseInt(this.queryParamsStore.params.pullRequestDaysWindow()[0]))
   pullRequestsWithinDateRangeCount = computed(() => {
     var pullRequests = this.pullRequestsStore.pullRequestsWithinDateRange()
     if (pullRequests == null) {

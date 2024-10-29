@@ -93,12 +93,12 @@ export class BitbucketService {
   }
 
   getPullRequests() {
-    var repositoriesSharedObservable = this.bitbucketAPI.getRepositories(this.queryParamsStore.params[GlobalQueryParams.project]()[0])
+    var repositoriesSharedObservable = this.bitbucketAPI.getRepositories(this.queryParamsStore.params.project()[0])
     return this.getPullRequestsFromRepositories(repositoriesSharedObservable);
   }
 
   getCommits() {
-    var repositoriesSharedObservable = this.bitbucketAPI.getRepositories(this.queryParamsStore.params[GlobalQueryParams.project]()[0])
+    var repositoriesSharedObservable = this.bitbucketAPI.getRepositories(this.queryParamsStore.params.project()[0])
     return this.getCommitsFromRepositories(repositoriesSharedObservable);
   }
 }

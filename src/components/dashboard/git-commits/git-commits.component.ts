@@ -25,7 +25,7 @@ import { GlobalQueryParams } from '../../../settings/global-query-params';
   templateUrl: 'git-commits.component.html',
 })
 export class GitCommitsComponent {
-  daysWindow = computed(() => parseInt(this.queryParamsStore.params[GlobalQueryParams.commitDaysWindow]()[0]))
+  daysWindow = computed(() => parseInt(this.queryParamsStore.params.commitDaysWindow()[0]))
   GlobalQueryParams = GlobalQueryParams
   
   constructor(
