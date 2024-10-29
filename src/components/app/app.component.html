@@ -1,5 +1,5 @@
 <div class="flex flex-col h-screen">
-  <div matTooltip="Show more">
+  <div>
     <mat-expansion-panel
       [ngClass]="{
         '!rounded-none !shadow-none !bg-slate-50 !bg-gradient-to-r !from-blue-50 !to-blue-300': true,
@@ -8,7 +8,7 @@
       hideToggle=""
     >
       <mat-expansion-panel-header class="!px-3">
-        <div class="flex items-center justify-between gap-3 p-1 w-full">
+        <div class="flex items-center justify-between gap-3 p-1 w-full" matTooltip="Show more">
           <div class="flex items-center gap-3 text-xl">
             <mat-icon svgIcon="bitbucket" inline class="!h-6"></mat-icon>
             <div class="text-2xl font-light mt-1">Dashboard</div>

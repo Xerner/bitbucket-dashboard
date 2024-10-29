@@ -1,160 +1,197 @@
 <!-- API Inputs -->
-<div class="grid grid-cols-4 gap-3 items-center justify-center">
-  <div class="font-medium font-xl col-span-4">API Inputs</div>
+<div class="flex flex-col gap-3">
+  <div class="grid grid-cols-4 gap-3 items-center justify-center">
+    <div class="font-medium font-xl col-span-4">API Inputs</div>
 
-  <mat-form-field>
-    <mat-label>Token</mat-label>
-    <input matInput [formControl]="inputsService.form.controls.access_token" />
-  </mat-form-field>
+    <mat-form-field>
+      <mat-label>Token</mat-label>
+      <input matInput [formControl]="inputsService.form.controls.accessToken" />
+    </mat-form-field>
 
-  <mat-form-field>
-    <mat-label>Workspace</mat-label>
-    <input matInput [formControl]="inputsService.form.controls.workspace" />
-  </mat-form-field>
+    <mat-form-field>
+      <mat-label>Workspace</mat-label>
+      <input matInput [formControl]="inputsService.form.controls.workspace" />
+    </mat-form-field>
 
-  <mat-form-field>
-    <mat-label>Project</mat-label>
-    <mat-select [formControl]="inputsService.form.controls.project">
-      @for (project of appStore.projects(); track $index) {
-      <mat-option [value]="project.name">{{ project.name }}</mat-option>
+    <mat-form-field>
+      <mat-label>Project</mat-label>
+      <mat-select [formControl]="inputsService.form.controls.project">
+        @for (project of appStore.projects(); track $index) {
+        <mat-option [value]="project.name">{{ project.name }}</mat-option>
+        }
+      </mat-select>
+      <mat-hint>Enter a Workspace to load possible options</mat-hint>
+      @if (isLoadingProjects()) {
+      <mat-progress-bar mode="query"></mat-progress-bar>
       }
-    </mat-select>
-    @if (isLoadingProjects()) {
-    <mat-progress-bar mode="query"></mat-progress-bar>
-    }
-  </mat-form-field>
+    </mat-form-field>
 
-  <div class="flex flex-col">
-    <button
-      mat-raised-button
-      class="!bg-gradient-to-r from-blue-600 to-purple-600 !text-slate-100"
-      color="primary"
-      (click)="onFetchAllClicked()"
-    >
-      Fetch All
-    </button>
-    <div
-      class="text-right text-xs font-light mt-2 mr-6 cursor-help underline decoration-dotted underline-offset-4"
-      [ngClass]="{
-        'text-red-800 !font-bold':
-          appStore.requestCounter() >= appStore.requestCounterWarningThreshold
-      }"
-      matTooltip="Bitbuckets API supposedly has an request limit of 1000 per hour"
-    >
-      {{ appStore.requestCounter() }} requests sent
+    <div class="flex flex-col">
+      <button
+        mat-raised-button
+        class="!bg-gradient-to-r from-blue-600 to-purple-600 !text-slate-100"
+        color="primary"
+        (click)="onFetchAllClicked()"
+      >
+        Fetch All
+      </button>
+      <div
+        class="text-right text-xs font-light mt-2 mr-6 cursor-help underline decoration-dotted underline-offset-4"
+        [ngClass]="{
+          'text-red-800 !font-bold':
+            appStore.requestCounter() >= appStore.requestCounterWarningThreshold
+        }"
+        matTooltip="Bitbuckets API supposedly has an request limit of 1000 per hour"
+      >
+        {{ appStore.requestCounter() }} requests sent
+      </div>
+    </div>
+  </div>
+
+  <!-- Pull Request Inputs -->
+  <div>
+    <div class="font-medium font-xl mb-3">Pull Request Inputs</div>
+    <div class="grid grid-cols-4 gap-3 w-full">
+      <mat-form-field>
+        <mat-label>Enter a date range</mat-label>
+        <mat-date-range-input [rangePicker]="prDatepicker">
+          <input
+            [formControl]="inputsService.form.controls.prStartDate"
+            matStartDate
+            placeholder="Start date"
+          />
+          <input
+            [formControl]="inputsService.form.controls.prEndDate"
+            matEndDate
+            placeholder="End date"
+          />
+        </mat-date-range-input>
+        <mat-hint>MM/DD/YYYY – MM/DD/YYYY</mat-hint>
+        <mat-datepicker-toggle
+          matIconSuffix
+          [for]="prDatepicker"
+        ></mat-datepicker-toggle>
+        <mat-date-range-picker #prDatepicker></mat-date-range-picker>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Last Updated Threshold</mat-label>
+        <input
+          matInput
+          type="number"
+          [formControl]="inputsService.form.controls.prOverdueThreshold"
+        />
+      </mat-form-field>
+
+      <div></div>
+
+      <button
+        mat-raised-button
+        class="!bg-gradient-to-r from-blue-600 to-purple-600 !text-slate-100 mt-2"
+        color="primary"
+        (click)="onFetchPullRequestsClicked()"
+      >
+        Fetch Pull Requests
+      </button>
+    </div>
+  </div>
+
+  <!-- Git Commit Inputs -->
+  <div>
+    <div class="font-medium font-xl mb-3">Git Commit Inputs</div>
+    <div class="grid grid-cols-4 gap-3 w-full">
+      <mat-form-field>
+        <mat-label>Enter a date range</mat-label>
+        <mat-date-range-input [rangePicker]="commitsDatepicker">
+          <input
+            [formControl]="inputsService.form.controls.commitsStartDate"
+            matStartDate
+            placeholder="Start date"
+          />
+          <input
+            [formControl]="inputsService.form.controls.commitsEndDate"
+            matEndDate
+            placeholder="End date"
+          />
+        </mat-date-range-input>
+        <mat-hint>MM/DD/YYYY – MM/DD/YYYY</mat-hint>
+        <mat-datepicker-toggle
+          matIconSuffix
+          [for]="commitsDatepicker"
+        ></mat-datepicker-toggle>
+        <mat-date-range-picker #commitsDatepicker></mat-date-range-picker>
+      </mat-form-field>
+      <div></div>
+      <div></div>
+  
+      <button
+        mat-raised-button
+        class="!bg-gradient-to-r from-blue-600 to-purple-600 !text-slate-100 mt-2"
+        color="primary"
+        (click)="onFetchCommitsClicked()"
+      >
+        Fetch Commits
+      </button>
+    </div>
+  </div>
+
+  <!-- Personnel -->
+  <div>
+    <div class="font-medium font-xl mb-3">Personnel</div>
+    <div class="grid grid-cols-4 gap-3">
+      <app-file-input
+        class="col-span-3"
+        [formControl]="inputsService.form.controls.personnelFile"
+        label="Upload Personnel File"
+        icon="data_object"
+      ></app-file-input>
+  
+      <button mat-raised-button class="mt-2" (click)="openPersonnelJsonDialog()">
+        See Personnel
+      </button>
+  
+      <mat-form-field class="w-full col-span-3">
+        <mat-label>Select Personnel To Show</mat-label>
+        <mat-select
+          [formControl]="inputsService.form.controls.anonymity"
+          multiple
+        >
+          @for (person of personnelStore.personnel(); track $index) {
+          <mat-option [value]="person">{{ person.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+  
+      <mat-checkbox
+        [formControl]="inputsService.form.controls.isAnonymityEnabled"
+        class="mt-2"
+        >Is Anonymous</mat-checkbox
+      >
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div>
+    <div class="font-medium font-xl mb-3">Views & Features</div>
+    <div class="grid grid-cols-4 gap-3">
+      <mat-form-field class="w-full col-span-4">
+        <mat-label>Select A View</mat-label>
+        <mat-select [formControl]="inputsService.form.controls.view">
+          @for (view of Views; track $index) {
+          <mat-option [value]="view">{{ view }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+  
+      <mat-form-field class="w-full col-span-4">
+        <mat-label>Select Features</mat-label>
+        <mat-select [formControl]="inputsService.form.controls.features" multiple>
+          @for (feature of Features; track $index) {
+          <mat-option [value]="feature[1]">{{ feature[1] }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <!-- <div class="col-span-3"></div> -->
     </div>
   </div>
 </div>
-
-<!-- Pull Request Inputs -->
-<div class="pb-0">
-  <div class="font-medium font-xl mb-3">Pull Request Inputs</div>
-  <div class="grid grid-cols-4 gap-3 w-full">
-    <mat-form-field>
-      <mat-label>Time Window (Days)</mat-label>
-      <input
-        matInput
-        type="number"
-        [formControl]="inputsService.form.controls.pullRequestDaysWindow"
-      />
-    </mat-form-field>
-
-    <mat-form-field>
-      <mat-label>Last Updated Threshold</mat-label>
-      <input
-        matInput
-        type="number"
-        [formControl]="inputsService.form.controls.overdueThreshold"
-      />
-    </mat-form-field>
-
-    <div></div>
-
-    <button
-      mat-raised-button
-      class="!bg-gradient-to-r from-blue-600 to-purple-600 !text-slate-100 mt-2"
-      color="primary"
-      (click)="onFetchPullRequestsClicked()"
-    >
-      Fetch Pull Requests
-    </button>
-  </div>
-</div>
-
-<!-- Git Commit Inputs -->
-<div class="font-medium font-xl mb-3">Git Commit Inputs</div>
-<div class="grid grid-cols-4 gap-3 w-full">
-  <mat-form-field>
-    <mat-label>Time Window (Days)</mat-label>
-    <input
-      matInput
-      type="number"
-      [formControl]="inputsService.form.controls.commitDaysWindow"
-    />
-  </mat-form-field>
-  <div></div>
-  <div></div>
-
-  <button
-    mat-raised-button
-    class="!bg-gradient-to-r from-blue-600 to-purple-600 !text-slate-100 mt-2"
-    color="primary"
-    (click)="onFetchCommitsClicked()"
-  >
-    Fetch Commits
-  </button>
-</div>
-
-<!-- Personnel -->
-<div class="font-medium font-xl mb-3">Personnel</div>
-<div class="grid grid-cols-4 gap-3">
-  <app-file-input
-    class="col-span-3"
-    [formControl]="inputsService.form.controls.personnelFile"
-    label="Upload Personnel File"
-    icon="data_object"
-  ></app-file-input>
-
-  <button mat-raised-button class="mt-2" (click)="openPersonnelJsonDialog()">
-    See Personnel
-  </button>
-
-  <mat-form-field class="w-full col-span-3">
-    <mat-label>Select Personnel To Show</mat-label>
-    <mat-select [formControl]="inputsService.form.controls.anonymity" multiple>
-      @for (person of personnelStore.personnel(); track $index) {
-      <mat-option [value]="person">{{ person.name }}</mat-option>
-      }
-    </mat-select>
-  </mat-form-field>
-
-  <mat-checkbox
-    [formControl]="inputsService.form.controls.isAnonymityEnabled"
-    class="mt-2"
-    >Is Anonymous</mat-checkbox
-  >
-</div>
-
-<!-- Features -->
-<div class="font-medium font-xl mb-3">Views & Features</div>
-<div class="grid grid-cols-4 gap-3">
-  <mat-form-field class="w-full col-span-4">
-    <mat-label>Select A View</mat-label>
-    <mat-select [formControl]="inputsService.form.controls.view">
-      @for (view of Views; track $index) {
-      <mat-option [value]="view">{{ view }}</mat-option>
-      }
-    </mat-select>
-  </mat-form-field>
-
-  <mat-form-field class="w-full col-span-4">
-    <mat-label>Select Features</mat-label>
-    <mat-select [formControl]="inputsService.form.controls.features" multiple>
-      @for (feature of Features; track $index) {
-      <mat-option [value]="feature[1]">{{ feature[1] }}</mat-option>
-      }
-    </mat-select>
-  </mat-form-field>
-  <!-- <div class="col-span-3"></div> -->
-</div>
-

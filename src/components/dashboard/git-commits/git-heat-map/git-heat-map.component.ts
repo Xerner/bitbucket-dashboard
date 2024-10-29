@@ -50,13 +50,13 @@ export class GitHeatMapComponent {
   readonly MAX_GREEN = 196;
 
   largestCount = 0;
-  daysWindow = input.required<number>()
+  startDate = input.required<DateTime>()
   author = input.required<Person>()
   commits = input.required<Commit[]>()
   isAnonymous = input<boolean>();
   commitCounts = computed<CommitCount[][]>(() => {
     var commits = this.commits();
-    var startDate = this.startDate();
+    var startDate = this.adjustedStartDate();
     var endDate = this.getEndDate()
     var daysInGraph = Math.abs(Math.floor(startDate.diff(endDate, "days").days))
     var commitCounts = new Array(daysInGraph).fill(0)
@@ -76,15 +76,11 @@ export class GitHeatMapComponent {
     });
     return commitCountsPerWeek;
   })
-  startDateForData = computed<DateTime>(() => {
-    var datetime = DateTime.now().toUTC().startOf('day').minus({ 'days': this.daysWindow() - 1 });
-    return datetime;
-  })
-  startDate = computed<DateTime>(() => {
-    return this.adjustedStartDate(this.startDateForData());
+  adjustedStartDate = computed<DateTime>(() => {
+    return this.adjustStartDate(this.startDate());
   })
   columns = computed<number>(() => {
-    var startDate = this.startDate()
+    var startDate = this.adjustedStartDate()
     var endDate = this.getEndDate()
     var days = Math.abs(startDate.diff(endDate, "days").days)
     return Math.ceil(days / this.ROWS)
@@ -103,7 +99,7 @@ export class GitHeatMapComponent {
       height: ${this.CELL_HEIGHT}rem;
       width: ${this.CELL_WIDTH}rem;
       margin-bottom: ${this.CELL_SPACING}rem;`
-    if (commitCount.date > DateTime.now() || commitCount.date < this.startDateForData()) {
+    if (commitCount.date > DateTime.now() || commitCount.date < this.startDate()) {
       style += " background-color: rgb(255, 255, 255, 0);"
       return style;
     }
@@ -152,7 +148,7 @@ export class GitHeatMapComponent {
   /**
    * The column end would normally be saturday
    */
-  adjustedStartDate(datetime: DateTime) {
+  adjustStartDate(datetime: DateTime) {
     var distanceFromNextColumnEnd = Math.abs(LuxonToHeatMapWeekdays[this.LUXON_SUNDAY] - LuxonToHeatMapWeekdays[datetime.weekday]);
     return datetime.minus({ "days": distanceFromNextColumnEnd })
   }

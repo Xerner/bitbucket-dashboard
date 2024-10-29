@@ -11,6 +11,7 @@ import { AppStore } from './app.store.service';
 import { DatesService } from '../services/dates.service';
 import { GlobalQueryParams } from '../settings/global-query-params';
 import { QueryParamsStore } from '../../repos/common/angular/query-params';
+import { DateTime } from 'luxon';
 
 @Injectable({
   providedIn: 'root'
@@ -24,12 +25,12 @@ export class PullRequestsStore {
     if (pullRequests == null) {
       return null;
     }
-    var daysWindow = parseInt(this.queryParamsStore.params.pullRequestDaysWindow()[0]);
-    var dateForQuery = this.datesService.getDateFromDateWindowForQuery(daysWindow);
-    if (dateForQuery == null) {
+    var startDate = DateTime.fromISO(this.queryParamsStore.params.prStartDate()[0]);
+    var endDate = DateTime.fromISO(this.queryParamsStore.params.prEndDate()[0]);
+    if (startDate == null || endDate == null) {
       return pullRequests;
     }
-    return pullRequests.filter(pullRequest => this.datesService.isPullRequestInsideDateWindow(pullRequest, dateForQuery!));
+    return pullRequests.filter(pullRequest => this.datesService.isPullRequestInsideDateWindow(pullRequest, startDate, endDate));
   });
   openPullRequests = computed(() => {
     var pullRequests = this.pullRequests();

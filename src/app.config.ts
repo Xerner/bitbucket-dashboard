@@ -16,6 +16,7 @@ import { Views } from './settings/features/Views';
 import { FeatureFlags } from './settings/features/FeatureFlags';
 import { FeatureViews } from './settings/features/FeatureViews';
 import { AppStore } from './stores/app.store.service';
+import { provideLuxonDateAdapter } from '@angular/material-luxon-adapter';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -23,6 +24,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimations(),
     provideHttpClient(withInterceptorsFromDi()),
     provideCharts(withDefaultRegisterables()),
+    provideLuxonDateAdapter(),
     provideQueryParams(GlobalQueryParams),
     provideFeatureFlags<Features, Views>(FeatureFlags, FeatureViews),
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },

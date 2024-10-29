@@ -11,6 +11,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { AnonymityService } from '../../../services/AnonymityService.service';
 import { QueryParamsStore } from '../../../../repos/common/angular/query-params';
 import { GlobalQueryParams } from '../../../settings/global-query-params';
+import { DatetimePipe } from '../../../../repos/common/angular/pipes/datetime.pipe';
+import { DateTime } from 'luxon';
 
 @Component({
   selector: 'app-git-commits',
@@ -21,11 +23,13 @@ import { GlobalQueryParams } from '../../../settings/global-query-params';
     ReactiveFormsModule,
     GitHeatMapComponent,
     MatButtonModule,
+    DatetimePipe,
   ],
   templateUrl: 'git-commits.component.html',
 })
 export class GitCommitsComponent {
-  daysWindow = computed(() => parseInt(this.queryParamsStore.params.commitDaysWindow()[0]))
+  startDate = computed(() => DateTime.fromISO(this.queryParamsStore.params.commitsStartDate()[0]))
+  endDate = computed(() => DateTime.fromISO(this.queryParamsStore.params.commitsEndDate()[0]))
   GlobalQueryParams = GlobalQueryParams
   
   constructor(

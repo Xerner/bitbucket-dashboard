@@ -1,9 +1,13 @@
 export enum GlobalQueryParams {
-  overdueThreshold = "overdueThreshold",
-  commitDaysWindow = "commitDaysWindow",
-  pullRequestDaysWindow = "pullRequestDaysWindow",
+  prOverdueThreshold = "prOverdueThreshold",
+  // commitDaysWindow = "commitDaysWindow",
+  // pullRequestDaysWindow = "pullRequestDaysWindow",
+  commitsStartDate = "commitsStartDate",
+  commitsEndDate = "commitsEndDate",
+  prStartDate = "prStartDate",
+  prEndDate = "prEndDate",
   workspace = "workspace",
   project = "project",
-  access_token = "access_token",
+  accessToken = "accessToken",
   view = "view",
 }

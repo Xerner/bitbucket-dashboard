@@ -13,14 +13,20 @@ import { environment } from '../settings/environment/environment';
 import { Views } from '../settings/features/Views';
 import { FeatureService } from '../../repos/common/angular/feature-flags/feature.service';
 import { FeatureFlags } from '../settings/features/FeatureFlags';
+import { DateTime } from 'luxon';
 
 export interface IInputForm {
-  overdueThreshold: FormControl<number | null>;
-  commitDaysWindow: FormControl<number | null>;
-  pullRequestDaysWindow: FormControl<number | null>;
+  prOverdueThreshold: FormControl<number | null>;
+  
+  commitsStartDate: FormControl<DateTime | null>;
+  commitsEndDate: FormControl<DateTime | null>;
+  
+  prStartDate: FormControl<DateTime | null>;
+  prEndDate: FormControl<DateTime | null>;
+
   workspace: FormControl<string | null>;
   project: FormControl<string | null>;
-  access_token: FormControl<string | null>;
+  accessToken: FormControl<string | null>;
   personnelFile: FormControl<File | null>;
   anonymity: FormControl<Person[] | null>;
   isAnonymityEnabled: FormControl<boolean | null>;
@@ -141,13 +147,16 @@ export class InputsService {
 
   buildForm(): FormGroup<IInputForm> {
     return new FormGroup({
-      [GlobalQueryParams.overdueThreshold]: new FormControl<number | null>(parseInt(this.queryParamStore.params.overdueThreshold()[0])),
-      [GlobalQueryParams.commitDaysWindow]: new FormControl<number | null>(parseInt(this.queryParamStore.params.commitDaysWindow()[0])),
-      [GlobalQueryParams.pullRequestDaysWindow]: new FormControl<number | null>(parseInt(this.queryParamStore.params.pullRequestDaysWindow()[0])),
+      [GlobalQueryParams.prOverdueThreshold]: new FormControl<number | null>(parseInt(this.queryParamStore.params.prOverdueThreshold()[0])),
+      
+      [GlobalQueryParams.prStartDate]: new FormControl<DateTime | null>(DateTime.fromISO(this.queryParamStore.params.prStartDate()[0])),
+      [GlobalQueryParams.prEndDate]: new FormControl<DateTime | null>(DateTime.fromISO(this.queryParamStore.params.prEndDate()[0])),
+      [GlobalQueryParams.commitsStartDate]: new FormControl<DateTime | null>(DateTime.fromISO(this.queryParamStore.params.commitsStartDate()[0])),
+      [GlobalQueryParams.commitsEndDate]: new FormControl<DateTime | null>(DateTime.fromISO(this.queryParamStore.params.commitsEndDate()[0])),
   
       [GlobalQueryParams.workspace]: new FormControl<string | null>(this.queryParamStore.params.workspace()[0], [Validators.required]),
       [GlobalQueryParams.project]: new FormControl<string | null>(this.queryParamStore.params.project()[0], [Validators.required]),
-      [GlobalQueryParams.access_token]: new FormControl<string | null>(this.queryParamStore.params.access_token()[0], [Validators.required]),
+      [GlobalQueryParams.accessToken]: new FormControl<string | null>(this.queryParamStore.params.accessToken()[0], [Validators.required]),
   
       personnelFile: new FormControl<File | null>(null),
       anonymity: new FormControl<Person[]>([]),
@@ -195,33 +204,29 @@ export class InputsService {
       this.form.controls.workspace.setValue(workspace);
     }
     // overdue threshold
-    var overdueThreshold = params.get(GlobalQueryParams.overdueThreshold);
+    var overdueThreshold = params.get(GlobalQueryParams.prOverdueThreshold);
     var overdueThresholdInt: number | null;
     if (typeof overdueThreshold === 'string') {
       overdueThresholdInt = parseInt(overdueThreshold)
     } else {
       overdueThresholdInt = null
     }
-    this.form.controls.overdueThreshold.setValue(overdueThresholdInt)
+    this.form.controls.prOverdueThreshold.setValue(overdueThresholdInt)
 
     // commit days window
-    var commitDaysWindow = params.get(GlobalQueryParams.commitDaysWindow);
-    var commitDaysWindowInt: number | null;
-    if (typeof commitDaysWindow === 'string') {
-      commitDaysWindowInt = parseInt(commitDaysWindow)
-    } else {
-      commitDaysWindowInt = null
-    }
-    this.form.controls.commitDaysWindow.setValue(commitDaysWindowInt)
+    var commitsStartDateParam = params.get(GlobalQueryParams.commitsStartDate);
+    var commitsEndDateParam = params.get(GlobalQueryParams.commitsEndDate);
+    var commitsStartDate = typeof commitsStartDateParam === 'string' ? DateTime.fromISO(commitsStartDateParam) : null;
+    var commitsEndDate = typeof commitsEndDateParam === 'string' ? DateTime.fromISO(commitsEndDateParam) : null;
+    this.form.controls.commitsStartDate.setValue(commitsStartDate)
+    this.form.controls.commitsEndDate.setValue(commitsEndDate)
 
     // pull request days window
-    var pullRequestDaysWindow = params.get(GlobalQueryParams.pullRequestDaysWindow);
-    var pullRequestDaysWindowInt: number | null;
-    if (typeof pullRequestDaysWindow === 'string') {
-      pullRequestDaysWindowInt = parseInt(pullRequestDaysWindow)
-    } else {
-      pullRequestDaysWindowInt = null
-    }
-    this.form.controls.pullRequestDaysWindow.setValue(pullRequestDaysWindowInt)
+    var prStartDateParam = params.get(GlobalQueryParams.prStartDate);
+    var prEndDateParam = params.get(GlobalQueryParams.prEndDate);
+    var prStartDate = typeof prStartDateParam === 'string' ? DateTime.fromISO(prStartDateParam) : null;
+    var prEndDate = typeof prEndDateParam === 'string' ? DateTime.fromISO(prEndDateParam) : null;
+    this.form.controls.prStartDate.setValue(prStartDate)
+    this.form.controls.prStartDate.setValue(prEndDate)
   }
 }

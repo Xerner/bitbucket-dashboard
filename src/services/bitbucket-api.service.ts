@@ -50,7 +50,7 @@ export class BitbucketAPI {
         }
         this.getAllPages(this.http.get<BitbucketApiResponse<T>>(
           results.next,
-          { params: queryParams, headers: this.getHeaders(this.queryParamsStore.params.access_token()[0]) }
+          { params: queryParams, headers: this.getHeaders(this.queryParamsStore.params.accessToken()[0]) }
         ), takeWhile, queryParams, count)
           .subscribe({
             next: (values) => {
@@ -74,7 +74,7 @@ export class BitbucketAPI {
       this.http.get<BitbucketApiResponse<Project>>(
         `https://api.bitbucket.org/2.0/workspaces/${workspace}/projects`,
         {
-          headers: this.getHeaders(this.queryParamsStore.params.access_token()[0])
+          headers: this.getHeaders(this.queryParamsStore.params.accessToken()[0])
         }
       )
     )
@@ -109,7 +109,7 @@ export class BitbucketAPI {
       this.http.get<BitbucketApiResponse<PullRequest>>(
         `${this.REPOSITORIES_URL}/${this.queryParamsStore.params.workspace()[0]}/${repository}/pullrequests`,
         {
-          headers: this.getHeaders(this.queryParamsStore.params.access_token()[0]),
+          headers: this.getHeaders(this.queryParamsStore.params.accessToken()[0]),
           params: queryParams
         }
       ), null, queryParams
@@ -124,22 +124,22 @@ export class BitbucketAPI {
     Object.values(PULL_REQUEST_STATES).forEach(state => {
       queryParams = queryParams.append("state", state)
     })
-    var daysWindow = parseInt(this.queryParamsStore.params.pullRequestDaysWindow()[0]);
-    var dateForQuery = this.datesService.getDateFromDateWindowForQuery(daysWindow);
-    if (dateForQuery == null) {
+    var endDateForQuery = DateTime.fromISO(this.queryParamsStore.params.prStartDate()[0]);
+    var startDateForQuery = DateTime.fromISO(this.queryParamsStore.params.prStartDate()[0]);
+    if (startDateForQuery == null || endDateForQuery == null) {
       return of([]);
     }
-    var takeWhile = (this.allAreInsideDateWindow<PullRequest>).bind(this, dateForQuery!, this.datesService.isPullRequestInsideDateWindow);
+    var takeWhile = (this.allAreInsideDateWindow<PullRequest>).bind(this, startDateForQuery, endDateForQuery, this.datesService.isPullRequestInsideDateWindow);
     return this.getAllPages(
       this.http.get<BitbucketApiResponse<PullRequest>>(
         `${this.REPOSITORIES_URL}/${this.queryParamsStore.params.workspace()[0]}/${repository}/pullrequests`,
         {
-          headers: this.getHeaders(this.queryParamsStore.params.access_token()[0]),
+          headers: this.getHeaders(this.queryParamsStore.params.accessToken()[0]),
           params: queryParams
         }
       ),
       takeWhile, queryParams
-    ).pipe(map((pullRequests) => pullRequests.filter(pullRequest => this.datesService.isPullRequestInsideDateWindow(pullRequest, dateForQuery!))))
+    ).pipe(map((pullRequests) => pullRequests.filter(pullRequest => this.datesService.isPullRequestInsideDateWindow(pullRequest, startDateForQuery, endDateForQuery))))
   }
 
   getRepositories(project: string) {
@@ -148,33 +148,33 @@ export class BitbucketAPI {
     return this.getAllPages(
       this.http.get<BitbucketApiResponse<BitbucketRepository>>(
         `${this.REPOSITORIES_URL}/${this.queryParamsStore.params.workspace()}`,
-        { params: queryParams, headers: this.getHeaders(this.queryParamsStore.params.access_token()[0]) })
+        { params: queryParams, headers: this.getHeaders(this.queryParamsStore.params.accessToken()[0]) })
       , null, queryParams)
   }
 
   getCommits(repository: string) {
-    var daysWindow = parseInt(this.queryParamsStore.params.commitDaysWindow()[0]);
-    var dateForQuery = this.datesService.getDateFromDateWindowForQuery(daysWindow);
-    if (dateForQuery == null) {
+    var startDate = DateTime.fromISO(this.queryParamsStore.params.commitsStartDate()[0]);
+    var endDate = DateTime.fromISO(this.queryParamsStore.params.commitsEndDate()[0]);
+    if (startDate == null || endDate == null) {
       return [];
     }
     return this.getAllPages(
       this.http.get<BitbucketApiResponse<Commit>>(
         `${this.REPOSITORIES_URL}/${this.queryParamsStore.params.workspace()}/${repository}/commits`,
         {
-          headers: this.getHeaders(this.queryParamsStore.params.access_token()[0])
+          headers: this.getHeaders(this.queryParamsStore.params.accessToken()[0])
         }
       ),
-      (this.allAreInsideDateWindow<Commit>).bind(this, dateForQuery, this.datesService.isCommitInsideDateWindow)
-    ).pipe(map((commits) => commits.filter(commit => this.datesService.isCommitInsideDateWindow(commit, dateForQuery!))))
+      (this.allAreInsideDateWindow<Commit>).bind(this, startDate, endDate, this.datesService.isCommitInsideDateWindow)
+    ).pipe(map((commits) => commits.filter(commit => this.datesService.isCommitInsideDateWindow(commit, startDate, endDate))))
   }
 
   //#endregion
 
   //#region helpers
 
-  allAreInsideDateWindow<T>(dateWindow: DateTime, checker: (item: T, datewindow: DateTime) => boolean, items: T[]) {
-    var allCommitsAreInsideDateWindow = items.every(item => checker(item, dateWindow));
+  allAreInsideDateWindow<T>(startDate: DateTime, endDate: DateTime, checker: (item: T, startDate: DateTime, endDate: DateTime) => boolean, items: T[]) {
+    var allCommitsAreInsideDateWindow = items.every(item => checker(item, startDate, endDate));
     return allCommitsAreInsideDateWindow
   }
 

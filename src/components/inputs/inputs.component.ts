@@ -7,6 +7,7 @@ import { AppStore } from '../../stores/app.store.service';
 import { BitbucketAPI } from '../../services/bitbucket-api.service';
 import { share } from 'rxjs';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { InputsService } from '../../services/inputs.service';
 import { BitbucketService } from '../../services/bitbucket.service';
 import { MatSelectModule } from '@angular/material/select';
@@ -39,6 +40,7 @@ import { Views } from '../../settings/features/Views';
     MatProgressBarModule,
     MatCheckboxModule,
     MatIconModule,
+    MatDatepickerModule,
     FileInputComponent,
 ],
   templateUrl: "inputs.component.html",

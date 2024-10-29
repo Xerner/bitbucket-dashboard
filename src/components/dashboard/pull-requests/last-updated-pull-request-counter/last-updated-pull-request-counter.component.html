@@ -6,7 +6,6 @@
       'italic text-slate-400': pullRequestsWithinDateRangeCount() == 0
     }"
   >
-    showing {{ pullRequestsWithinDateRangeCount() }} pull requests that were updated within
-    the last {{ daysWindow() }} days
+    showing {{ pullRequestsWithinDateRangeCount() }} pull requests that were updated from {{ startDate() | DateTime }} to {{ endDate() | DateTime }}
   </div>
 </div>

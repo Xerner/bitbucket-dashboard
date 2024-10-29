@@ -7,12 +7,8 @@
     }"
   >
     <span class="italic font-normal"
-      >showing commits within the last
-      {{
-        queryParamsStore.params.pullRequestDaysWindow()
-      }}
-      days</span
-    >
+      >showing commits from {{ startDate() | DateTime }} - {{ endDate() | DateTime }}
+    </span>
     &nbsp;&nbsp;&nbsp;&nbsp;
     {{ commitsStore.commits().length }} total commits
   </div>
@@ -21,7 +17,7 @@
 <div class="flex flex-wrap gap-3 p-3">
   @for (authorCommits of commitsStore.authorsCommits(); track $index) {
   <app-git-heat-map
-    [daysWindow]="daysWindow()"
+    [startDate]="startDate()"
     [author]="authorCommits[0]"
     [commits]="authorCommits[1]"
     [isAnonymous]="anonymityService.isAnonymous(authorCommits[0])"
