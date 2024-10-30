@@ -1,6 +1,8 @@
 [submodule "common"]
 	path = repos/common
 	url = git@github.com:Xerner/common-ts.git
+	branch = development
 [submodule ".devcontainer"]
 	path = .devcontainer
 	url = git@github.com:Xerner/.devcontainer.git
+	branch = development
