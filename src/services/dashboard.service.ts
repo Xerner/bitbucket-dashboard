@@ -3,7 +3,7 @@ import { SortDirection } from '@angular/material/sort';
 import { ChartData, ChartTypeRegistry } from 'chart.js';
 import { DateTime } from 'luxon';
 import { GlobalQueryParams } from '../settings/global-query-params';
-import { QueryParamsStore } from '../../repos/common/angular/query-params';
+import { QueryParamsStore } from '../../repos/common/angular/services/query-params';
 
 @Injectable({
   providedIn: 'root'

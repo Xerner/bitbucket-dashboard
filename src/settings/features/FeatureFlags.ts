@@ -1,4 +1,4 @@
-import { IFeatureFlag } from "../../../repos/common/angular/feature-flags/interfaces/IFeatureFlag"
+import { IFeatureFlag } from "../../../repos/common/angular/services/feature-flags/interfaces/IFeatureFlag"
 import { Features } from "./Features"
 
 export const FeatureFlags: IFeatureFlag<Features>[] = [

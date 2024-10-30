@@ -8,9 +8,8 @@ import { ErrorInterceptor } from './interceptors/error.interceptor';
 import { provideRequestCounterInterceptor } from '../repos/common/angular/interceptors';
 import { initializeAppFactory } from './app.initializer';
 import { InputsService } from './services/inputs.service';
-import { provideQueryParams } from '../repos/common/angular/query-params';
+import { provideQueryParams, provideApiHelpers, provideFeatureFlags } from '../repos/common/angular/services';
 import { GlobalQueryParams } from './settings/global-query-params';
-import { provideFeatureFlags } from '../repos/common/angular/feature-flags/provider';
 import { Features } from './settings/features/Features';
 import { Views } from './settings/features/Views';
 import { FeatureFlags } from './settings/features/FeatureFlags';
@@ -25,6 +24,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptorsFromDi()),
     provideCharts(withDefaultRegisterables()),
     provideLuxonDateAdapter(),
+    provideApiHelpers(),
     provideQueryParams(GlobalQueryParams),
     provideFeatureFlags<Features, Views>(FeatureFlags, FeatureViews),
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },

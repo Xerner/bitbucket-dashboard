@@ -8,7 +8,6 @@ import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { AppStore } from '../../stores/app.store.service';
-import { HttpErrorResponse } from '@angular/common/http';
 import { GitCommitsComponent } from '../dashboard/git-commits/git-commits.component';
 import { MatTabsModule } from '@angular/material/tabs';
 import { InputsService } from '../../services/inputs.service';
@@ -21,7 +20,7 @@ import { PrSubmittedByAuthorChartComponent } from '../dashboard/pull-requests/pr
 import { PullRequestTableComponent } from '../dashboard/pull-requests/pull-request-table/pull-request-table.component';
 import { LastUpdatedPullRequestCounterComponent } from '../dashboard/pull-requests/last-updated-pull-request-counter/last-updated-pull-request-counter.component';
 import { Views } from '../../settings/features/Views';
-import { FeatureService } from '../../../repos/common/angular/feature-flags/feature.service';
+import { FeatureService } from '../../../repos/common/angular/services/feature-flags/feature.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
@@ -60,10 +59,5 @@ export class AppComponent {
     protected featureService: FeatureService<Features, Views>,
   ) {
     matIconRegistry.addSvgIcon("bitbucket", domSanitizer.bypassSecurityTrustResourceUrl("assets/Bitbucket-Logo-blue.svg"))
-  }
-
-  errorToString(httpErrorResponse: HttpErrorResponse): string {
-    this.inputsService.form.controls.features.value
-    return httpErrorResponse.error.error.message
   }
 }

@@ -51,18 +51,20 @@ export class GitHeatMapComponent {
 
   largestCount = 0;
   startDate = input.required<DateTime>()
+  endDate = input.required<DateTime>()
   author = input.required<Person>()
   commits = input.required<Commit[]>()
   isAnonymous = input<boolean>();
   commitCounts = computed<CommitCount[][]>(() => {
     var commits = this.commits();
     var startDate = this.adjustedStartDate();
-    var endDate = this.getEndDate()
+    var endDate = this.getAdjustedEndDate()
     var daysInGraph = Math.abs(Math.floor(startDate.diff(endDate, "days").days))
     var commitCounts = new Array(daysInGraph).fill(0)
     commitCounts = commitCounts.map((_, index) => {
       return { date: startDate.plus({ 'days': index }), count: 0 }
     });
+    // sort by date ascending
     commitCounts.sort((commitCount1, commitCount2) => commitCount1.date < commitCount2.date ? -1 : 1);
     commits.forEach(this.countCommit.bind(this, commitCounts))
     var commitCountsPerWeek: CommitCount[][] = []
@@ -81,7 +83,7 @@ export class GitHeatMapComponent {
   })
   columns = computed<number>(() => {
     var startDate = this.adjustedStartDate()
-    var endDate = this.getEndDate()
+    var endDate = this.getAdjustedEndDate();
     var days = Math.abs(startDate.diff(endDate, "days").days)
     return Math.ceil(days / this.ROWS)
   })
@@ -99,12 +101,12 @@ export class GitHeatMapComponent {
       height: ${this.CELL_HEIGHT}rem;
       width: ${this.CELL_WIDTH}rem;
       margin-bottom: ${this.CELL_SPACING}rem;`
-    if (commitCount.date > DateTime.now() || commitCount.date < this.startDate()) {
-      style += " background-color: rgb(255, 255, 255, 0);"
+    if (commitCount.date < this.startDate() || commitCount.date > this.endDate() ) {
+      style += " background-color: rgb(216, 216, 216, 0.5);"
       return style;
     }
     if (commitCount.count == 0) {
-      style += " background-color: rgb(196, 196, 196);"
+      style += " background-color: rgb(164, 164, 164);"
       return style;
     }
     var greenness = this.getGreenness(commitCount.count);
@@ -120,7 +122,7 @@ export class GitHeatMapComponent {
   }
 
   isCommitDateEqualToDateTime(commit: Commit, datetime: DateTime) {
-    return datetime.diff(this.commitDateToDateTime(commit), "days").days == 0;
+    return Math.floor(datetime.diff(this.commitDateToDateTime(commit), "days").days) == 0;
   }
 
   commitDateToDateTime(commit: Commit) {
@@ -139,10 +141,10 @@ export class GitHeatMapComponent {
   /**
    * The column end would normally be saturday
    */
-  getEndDate() {
-    var datetime = DateTime.now();
+  getAdjustedEndDate() {
+    var datetime = this.endDate();
     var distanceFromNextColumnEnd = Math.abs(LuxonToHeatMapWeekdays[this.LUXON_SATURDAY] - LuxonToHeatMapWeekdays[datetime.weekday]);
-    return datetime.plus({ "days": distanceFromNextColumnEnd })
+    return datetime.plus({ "days": distanceFromNextColumnEnd + 1 })
   }
 
   /**

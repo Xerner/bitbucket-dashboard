@@ -1,4 +1,3 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { computed, Injectable, signal } from '@angular/core';
 import { Project } from '../models/bitbucket/Project';
 
@@ -7,26 +6,26 @@ import { Project } from '../models/bitbucket/Project';
 })
 export class AppStore {
   requestCounterWarningThreshold = 500;
-  httpErrors = signal<[string, HttpErrorResponse][]>([]);
+  errors = signal<[string, string][]>([]);
   projects = signal<Project[]>([])
   itemsLoading = signal<number>(0);
   isLoading = computed<boolean>(() => this.itemsLoading() != 0);
   requestCounter = signal<number>(0);
 
-  addError(source: string, error: HttpErrorResponse) {
-    var errors = this.httpErrors();
+  addError(source: string, error: string) {
+    var errors = this.errors();
     if (errors == null) {
-      this.httpErrors.set([[source, error]])
+      this.errors.set([[source, error]])
       return;
     }
-    this.httpErrors.set([...errors, [source, error]])
+    this.errors.set([...errors, [source, error]])
   }
 
   removeError(source: string) {
-    var errors = this.httpErrors();
+    var errors = this.errors();
     if (errors == null) {
       return;
     }
-    this.httpErrors.set(errors.filter(errors => errors[0] != source))
+    this.errors.set(errors.filter(errors => errors[0] != source))
   }
 }

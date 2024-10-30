@@ -10,7 +10,7 @@ import { CommitsStore } from '../stores/commits.store.service';
 import { Project } from '../models/bitbucket/Project';
 import { PersonnelStore } from '../stores/personnel.store.service';
 import { GlobalQueryParams } from '../settings/global-query-params';
-import { QueryParamsStore } from '../../repos/common/angular/query-params';
+import { QueryParamsStore } from '../../repos/common/angular/services/query-params';
 
 @Injectable({
   providedIn: 'root'

@@ -31,6 +31,7 @@
         mat-raised-button
         class="!bg-gradient-to-r from-blue-600 to-purple-600 !text-slate-100"
         color="primary"
+        [disabled]="appStore.isLoading()"
         (click)="onFetchAllClicked()"
       >
         Fetch All
@@ -52,7 +53,7 @@
   <div>
     <div class="font-medium font-xl mb-3">Pull Request Inputs</div>
     <div class="grid grid-cols-4 gap-3 w-full">
-      <mat-form-field>
+      <mat-form-field class="col-span-2">
         <mat-label>Enter a date range</mat-label>
         <mat-date-range-input [rangePicker]="prDatepicker">
           <input
@@ -66,7 +67,6 @@
             placeholder="End date"
           />
         </mat-date-range-input>
-        <mat-hint>MM/DD/YYYY – MM/DD/YYYY</mat-hint>
         <mat-datepicker-toggle
           matIconSuffix
           [for]="prDatepicker"
@@ -81,15 +81,15 @@
           type="number"
           [formControl]="inputsService.form.controls.prOverdueThreshold"
         />
+        <mat-hint>Will affect the color coding in the 'PR last updated' chart</mat-hint>
       </mat-form-field>
-
-      <div></div>
 
       <button
         mat-raised-button
         class="!bg-gradient-to-r from-blue-600 to-purple-600 !text-slate-100 mt-2"
         color="primary"
         (click)="onFetchPullRequestsClicked()"
+        [disabled]="appStore.isLoading()"
       >
         Fetch Pull Requests
       </button>
@@ -100,7 +100,7 @@
   <div>
     <div class="font-medium font-xl mb-3">Git Commit Inputs</div>
     <div class="grid grid-cols-4 gap-3 w-full">
-      <mat-form-field>
+      <mat-form-field class="col-span-2">
         <mat-label>Enter a date range</mat-label>
         <mat-date-range-input [rangePicker]="commitsDatepicker">
           <input
@@ -114,14 +114,13 @@
             placeholder="End date"
           />
         </mat-date-range-input>
-        <mat-hint>MM/DD/YYYY – MM/DD/YYYY</mat-hint>
         <mat-datepicker-toggle
           matIconSuffix
           [for]="commitsDatepicker"
         ></mat-datepicker-toggle>
         <mat-date-range-picker #commitsDatepicker></mat-date-range-picker>
+        <mat-hint>Commit APIs usually don't support filtering. Looking at very old commits could take much longer</mat-hint>
       </mat-form-field>
-      <div></div>
       <div></div>
   
       <button
@@ -129,6 +128,7 @@
         class="!bg-gradient-to-r from-blue-600 to-purple-600 !text-slate-100 mt-2"
         color="primary"
         (click)="onFetchCommitsClicked()"
+        [disabled]="appStore.isLoading()"
       >
         Fetch Commits
       </button>
@@ -144,6 +144,7 @@
         [formControl]="inputsService.form.controls.personnelFile"
         label="Upload Personnel File"
         icon="data_object"
+        hint="Personnel data will automatically be updated with found personnel when data is fetched"
       ></app-file-input>
   
       <button mat-raised-button class="mt-2" (click)="openPersonnelJsonDialog()">
@@ -181,6 +182,7 @@
           <mat-option [value]="view">{{ view }}</mat-option>
           }
         </mat-select>
+        <mat-hint>Views are groups of features</mat-hint>
       </mat-form-field>
   
       <mat-form-field class="w-full col-span-4">

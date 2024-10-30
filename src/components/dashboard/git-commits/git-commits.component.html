@@ -18,6 +18,7 @@
   @for (authorCommits of commitsStore.authorsCommits(); track $index) {
   <app-git-heat-map
     [startDate]="startDate()"
+    [endDate]="endDate()"
     [author]="authorCommits[0]"
     [commits]="authorCommits[1]"
     [isAnonymous]="anonymityService.isAnonymous(authorCommits[0])"

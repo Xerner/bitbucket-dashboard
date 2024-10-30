@@ -14,7 +14,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { PersonnelStore } from '../../stores/personnel.store.service';
-import { FileInputComponent } from "./file-input/file-input.component";
+import { FileInputComponent } from "../../../repos/common/angular/components";
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { CodeDialogComponent, ICodeDialogComponent } from './code-dialog/code-dialog.component';
@@ -22,7 +22,7 @@ import PERSONNEL_JSON_SCHEMA from '../../settings/personnel-json-schema.json'
 import PERSONNEL_JSON_EXAMPLE from '../../settings/personnel-json-example.json'
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { Features } from '../../settings/features/Features';
-import { QueryParamsStore } from '../../../repos/common/angular/query-params';
+import { QueryParamsStore } from '../../../repos/common/angular/services/query-params';
 import { GlobalQueryParams } from '../../settings/global-query-params';
 import { Views } from '../../settings/features/Views';
 
@@ -63,7 +63,10 @@ export class InputsComponent {
   ) { }
 
   onFetchAllClicked() {
-    if (!this.inputsService.form.valid || this.appStore.itemsLoading()) {
+    if (!this.inputsService.form.valid || this.appStore.isLoading()) {
+      return;
+    }
+    if (!this.validateCommitsFormInputs() || !this.validatePrFormInputs()) {
       return;
     }
     var repositoriesSharedObservable = this.bitbucketApi.getRepositories(this.queryParamsStore.params.project()[0]).pipe(share())
@@ -72,10 +75,22 @@ export class InputsComponent {
   }
 
   onFetchPullRequestsClicked() {
+    if (this.appStore.isLoading()) {
+      return;
+    }
+    if (!this.validatePrFormInputs()) {
+      return
+    }
     this.bitbucketService.getPullRequests();
   }
 
   onFetchCommitsClicked() {
+    if (this.appStore.isLoading()) {
+      return;
+    }
+    if (!this.validateCommitsFormInputs()) {
+      return
+    }
     this.bitbucketService.getCommits();
   }
 
@@ -92,5 +107,39 @@ export class InputsComponent {
         top: "10%"
       }
     });
+  }
+
+  validateGeneralFormInputs() {
+    var hasToken = this.inputsService.form.controls.accessToken.value != null;
+    if (!hasToken) {
+      this.appStore.addError("Token Input", "Access token is required");
+    }
+    var hasWorkspace = this.inputsService.form.controls.workspace.value != null;
+    if (!hasWorkspace) {
+      this.appStore.addError("Workspace Input", "Workspace is required");
+    }
+    var hasProject = this.inputsService.form.controls.project.value != null;
+    if (!hasProject) {
+      this.appStore.addError("Project Input", "Project is required");
+    }
+    return hasToken && hasWorkspace && hasProject;
+  }
+
+  validateCommitsFormInputs() {
+    var hasGeneralFormInputs = this.validateGeneralFormInputs();
+    var hasCommitDates = this.inputsService.form.controls.commitsStartDate.value != null && this.inputsService.form.controls.commitsEndDate.value != null;
+    if (!hasCommitDates) {
+      this.appStore.addError("Commit Dates", "Commit dates are required");
+    }
+    return hasGeneralFormInputs && hasCommitDates;
+  }
+
+  validatePrFormInputs() {
+    var hasGeneralFormInputs = this.validateGeneralFormInputs();
+    var hasPrDates = this.inputsService.form.controls.prStartDate.value != null && this.inputsService.form.controls.prEndDate.value != null;
+    if (!hasPrDates) {
+      this.appStore.addError("Pull Request Dates", "Pull request dates are required");
+    }
+    return hasGeneralFormInputs && hasPrDates;
   }
 }

@@ -3,7 +3,7 @@ import { Component, computed } from '@angular/core';
 import { PullRequestsStore } from '../../../../stores/pull-requests.store.service';
 import { AppStore } from '../../../../stores/app.store.service';
 import { GlobalQueryParams } from '../../../../settings/global-query-params';
-import { QueryParamsStore } from '../../../../../repos/common/angular/query-params';
+import { QueryParamsStore } from '../../../../../repos/common/angular/services/query-params';
 import { DateTime } from 'luxon';
 import { DatetimePipe } from '../../../../../repos/common/angular/pipes/datetime.pipe';
 

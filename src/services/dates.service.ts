@@ -17,6 +17,8 @@ export class DatesService {
    * Checks if a date is between the start and end dates, inclusive of the start and end date
    */
   isDateWithinWindow(date: DateTime, start: DateTime, end: DateTime) {
-    return date >= start && date <= end;
+    var isGreaterThanOrEqualToStartDate = Math.floor(date.diff(start, 'days').days) >= 0;
+    var isLessThanOrEqualToEndDate = Math.floor(date.diff(end, 'days').days) <= 0;
+    return isGreaterThanOrEqualToStartDate && isLessThanOrEqualToEndDate;
   }
 }

@@ -7,11 +7,11 @@ import { Person } from '../models/Person';
 import { AnonymityService } from './AnonymityService.service';
 import { PersonnelStore } from '../stores/personnel.store.service';
 import { Features } from '../settings/features/Features';
-import { QueryParamsStore } from '../../repos/common/angular/query-params';
+import { QueryParamsStore } from '../../repos/common/angular/services/query-params';
 import { GlobalQueryParams as GlobalQueryParams } from '../settings/global-query-params';
 import { environment } from '../settings/environment/environment';
 import { Views } from '../settings/features/Views';
-import { FeatureService } from '../../repos/common/angular/feature-flags/feature.service';
+import { FeatureService } from '../../repos/common/angular/services/feature-flags/feature.service';
 import { FeatureFlags } from '../settings/features/FeatureFlags';
 import { DateTime } from 'luxon';
 

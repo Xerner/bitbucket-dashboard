@@ -1,4 +1,4 @@
-import { IFeatureView } from "../../../repos/common/angular/feature-flags/interfaces/IFeatureView";
+import { IFeatureView } from "../../../repos/common/angular/services/feature-flags/interfaces/IFeatureView";
 import { Features } from "./Features";
 import { Views } from "./Views";
 

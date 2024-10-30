@@ -9,7 +9,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { GitHeatMapComponent } from './git-heat-map/git-heat-map.component';
 import { MatButtonModule } from '@angular/material/button';
 import { AnonymityService } from '../../../services/AnonymityService.service';
-import { QueryParamsStore } from '../../../../repos/common/angular/query-params';
+import { QueryParamsStore } from '../../../../repos/common/angular/services/query-params';
 import { GlobalQueryParams } from '../../../settings/global-query-params';
 import { DatetimePipe } from '../../../../repos/common/angular/pipes/datetime.pipe';
 import { DateTime } from 'luxon';

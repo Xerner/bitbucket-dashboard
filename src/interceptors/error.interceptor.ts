@@ -10,7 +10,7 @@ export class ErrorInterceptor implements HttpInterceptor {
     // https://stackoverflow.com/a/53379715/12265840
     return next.handle(req).pipe(
       catchError((error: HttpErrorResponse) => {
-        appStore.addError(req.url, error)
+        appStore.addError(req.url, error.error.error.message)
         appStore.itemsLoading.set(0)
         return throwError(() => error);
       }));
