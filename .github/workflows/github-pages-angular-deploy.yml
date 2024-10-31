@@ -19,6 +19,10 @@ jobs:
   build-and-deploy-to-github-pages:
     runs-on: ubuntu-latest
     steps:
+      - name: Clone submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
       - name: Deploy Angular to GitHub Pages
         uses: bitovi/github-actions-angular-to-github-pages@v1.0.0
         with:
