@@ -7,16 +7,37 @@
 <div class="flex justify-end">
   <div class="grid gap-1" [style]="getColumnContainerStyle()">
     @for (weekCounts of commitCounts(); track $index) {
-      <div class="grid grid-cols-1" [style]="getRowContainerStyle()">
-        @for (commitCount of weekCounts; track $index) {
-        <div
-          class="rounded-sm"
-          [style]="getCellStyle(commitCount)"
-          [matTooltip]="getCountTooltip(commitCount)"
-          matTooltipClass="whitespace-pre-line"
-        ></div>
-        }
-      </div>
+    <div class="grid grid-cols-1" [style]="getRowContainerStyle()">
+      @for (commitCount of weekCounts; track $index) {
+      <button
+        #menuTrigger
+        class="rounded-sm"
+        [style]="getCellStyle(commitCount)"
+        [matMenuTriggerFor]="menu"
+        [matTooltip]="getCountTooltip(commitCount)"
+        tooltipClass="whitespace-pre"
+        matTooltipClass="whitespace-pre-line"
+        (click)="onCommitMenuOpened(commitCount)"
+      ></button>
+      }
+    </div>
     }
   </div>
 </div>
+
+<mat-menu #menu="matMenu">
+  <div class="px-3 flex flex-col gap-1">
+    @if (selectedCommitsOnDate() === null) {
+    <div class="text-center">No commits</div>
+    } @else { @for (commit of selectedCommitsOnDate()!.commits; track $index) {
+    <a [href]="commit.links.html.href">
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          {{ commit.repository.name }}
+        </div>
+        <span class="text-blue-500">{{ commit.hash.substring(0, 8) }}</span>
+      </div>
+    </a>
+    } }
+  </div>
+</mat-menu>

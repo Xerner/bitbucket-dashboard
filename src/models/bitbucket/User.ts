@@ -1,11 +1,18 @@
 export interface User {
-  uuid: string;
-  account_id: string;
   display_name: string;
-  nickname: string;
+  uuid: string;
   links: {
-    self: string;
-    avatar: string;
-    html: string;
+    self: {
+      href: string;
+    };
+    html: {
+      href: string;
+    };
+    avatar: {
+      href: string;
+    };
   };
-}
+  type: string;
+  nickname: string;
+  account_id: string;
+};

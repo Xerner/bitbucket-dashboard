@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, signal } from '@angular/core';
 import { Commit } from '../../../../models/bitbucket/Commit';
 import { DateTime, WeekdayNumbers } from 'luxon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Person } from '../../../../models/Person';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 
 export const LuxonToHeatMapWeekdays: Record<number, number> = {
   1: 2, // 1 is Monday in Luxon
@@ -25,9 +26,9 @@ export const LuxonWeekdaysToString: Record<number, string> = {
   7: "Sunday", // 7 is Sunday in Luxon
 }
 
-interface CommitCount {
+interface CommitsOnDate {
   date: DateTime;
-  count: number;
+  commits: Commit[];
 }
 
 @Component({
@@ -35,7 +36,9 @@ interface CommitCount {
   standalone: true,
   imports: [
     CommonModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatMenuModule,
+    MatMenuTrigger,
   ],
   templateUrl: './git-heat-map.component.html',
 })
@@ -55,20 +58,23 @@ export class GitHeatMapComponent {
   author = input.required<Person>()
   commits = input.required<Commit[]>()
   isAnonymous = input<boolean>();
-  commitCounts = computed<CommitCount[][]>(() => {
+  commitCounts = computed<CommitsOnDate[][]>(() => {
     var commits = this.commits();
     var startDate = this.adjustedStartDate();
     var endDate = this.getAdjustedEndDate()
     var daysInGraph = Math.abs(Math.floor(startDate.diff(endDate, "days").days))
-    var commitCounts = new Array(daysInGraph).fill(0)
+    var commitCounts: CommitsOnDate[] = new Array(daysInGraph).fill(0)
     commitCounts = commitCounts.map((_, index) => {
-      return { date: startDate.plus({ 'days': index }), count: 0 }
+      return {
+        date: startDate.plus({ 'days': index }),
+        commits: []
+      }
     });
     // sort by date ascending
     commitCounts.sort((commitCount1, commitCount2) => commitCount1.date < commitCount2.date ? -1 : 1);
     commits.forEach(this.countCommit.bind(this, commitCounts))
-    var commitCountsPerWeek: CommitCount[][] = []
-    var currentWeek: CommitCount[] = [];
+    var commitCountsPerWeek: CommitsOnDate[][] = []
+    var currentWeek: CommitsOnDate[] = [];
     commitCounts.forEach((commitCount, i) => {
       if (i % this.ROWS == 0) {
         currentWeek = []
@@ -87,6 +93,7 @@ export class GitHeatMapComponent {
     var days = Math.abs(startDate.diff(endDate, "days").days)
     return Math.ceil(days / this.ROWS)
   })
+  selectedCommitsOnDate = signal<CommitsOnDate | null>(null)
 
   getColumnContainerStyle() {
     return `grid-template-columns: repeat(${this.columns()}, minmax(0, ${this.columns()}fr));`
@@ -96,7 +103,7 @@ export class GitHeatMapComponent {
     return `grid-template-rows: repeat(${this.ROWS}, minmax(0, ${this.ROWS}fr));`
   }
 
-  getCellStyle(commitCount: CommitCount) {
+  getCellStyle(commitCount: CommitsOnDate) {
     var style = `
       height: ${this.CELL_HEIGHT}rem;
       width: ${this.CELL_WIDTH}rem;
@@ -105,11 +112,11 @@ export class GitHeatMapComponent {
       style += " background-color: rgb(216, 216, 216, 0.5);"
       return style;
     }
-    if (commitCount.count == 0) {
+    if (commitCount.commits.length == 0) {
       style += " background-color: rgb(164, 164, 164);"
       return style;
     }
-    var greenness = this.getGreenness(commitCount.count);
+    var greenness = this.getGreenness(commitCount.commits.length);
     style += ` background-color: rgb(0, ${greenness}, 0);`
     return style;
   }
@@ -129,13 +136,13 @@ export class GitHeatMapComponent {
     return DateTime.fromISO(commit.date).toUTC().startOf('day');
   }
 
-  countCommit(commitCounts: CommitCount[], commit: Commit) {
+  countCommit(commitCounts: CommitsOnDate[], commit: Commit) {
     var commitCount = commitCounts.find(commitCount => this.isCommitDateEqualToDateTime(commit, commitCount.date))
     if (commitCount == undefined) {
       return;
     }
-    commitCount.count++;
-    this.largestCount = Math.max(this.largestCount, commitCount.count)
+    commitCount.commits.push(commit);
+    this.largestCount = Math.max(this.largestCount, commitCount.commits.length)
   }
 
   /**
@@ -155,14 +162,26 @@ export class GitHeatMapComponent {
     return datetime.minus({ "days": distanceFromNextColumnEnd })
   }
 
-  getCountTooltip(commitCount: CommitCount) {
+  getCountTooltip(commitCount: CommitsOnDate) {
     var weekday: string = LuxonWeekdaysToString[commitCount.date.weekday]
     var dateStr = commitCount.date.toLocaleString()
     return `${weekday}
-${commitCount.count} commit(s) on ${dateStr}`
+${commitCount.commits.length} commit(s) on ${dateStr}
+Click to view commits`
+  }
+
+  formatCommitsForMenu(commitsOnDate: CommitsOnDate | null) {
+    if (commitsOnDate == null || commitsOnDate.commits.length == 0) {
+      return "No commits";
+    }
+    return commitsOnDate.commits.map(commit => `${commit.repository.name}\t${commit.hash.substring(0, 8)}`).join("\n");
   }
 
   getAuthor(): string {
     return this.isAnonymous() ? "Anonymous" : this.author().name;
+  }
+
+  onCommitMenuOpened(commitsOnDate: CommitsOnDate) {
+    this.selectedCommitsOnDate.set(commitsOnDate);
   }
 }
